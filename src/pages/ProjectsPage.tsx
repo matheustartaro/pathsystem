@@ -53,30 +53,18 @@ const ProjectsPage = () => {
   const getOrderItemsForProject = (projectId: string): OrderItemInput[] => {
     const projectItems = allOrderItems.filter(item => item.project_id === projectId);
     
-    // Create a map of service items for linking
-    const serviceItemsMap = new Map<string, string>();
-    projectItems
-      .filter(item => item.item_type === 'service')
-      .forEach(item => {
-        serviceItemsMap.set(item.id, item.service_id || item.id);
-      });
-    
-    return projectItems.map(item => ({
-      type: item.item_type as 'product' | 'service' | 'foam',
-      itemId: item.service_id || item.product_id || item.id,
-      nome: item.nome || '',
-      quantidade: item.quantidade,
-      preco_unitario: item.preco_unitario,
-      desconto: item.desconto,
-      total: item.total,
-      parentServiceId: item.parent_service_id || undefined,
-      isManual: item.is_manual,
-      largura: item.largura || undefined,
-      comprimento: item.comprimento || undefined,
-      altura: item.altura || undefined,
-      metroCubico: item.metro_cubico || undefined,
-      precoM3: item.preco_m3 || undefined,
-    }));
+    return projectItems
+      .filter(item => item.item_type === 'product' || item.item_type === 'service')
+      .map(item => ({
+        type: item.item_type as 'product' | 'service',
+        itemId: item.service_id || item.product_id || item.id,
+        nome: item.nome || '',
+        quantidade: item.quantidade,
+        preco_unitario: item.preco_unitario,
+        desconto: item.desconto,
+        total: item.total,
+        isManual: item.is_manual,
+      }));
   };
 
   const filteredProjects = useMemo(() => {
@@ -147,25 +135,25 @@ const ProjectsPage = () => {
         serviceIdMap.set(item.itemId, savedItem.id);
       }
       
-      // Save products and foams
-      for (const item of items.filter(i => i.type !== 'service')) {
+      // Save products
+      for (const item of items.filter(i => i.type === 'product')) {
         await addItem({
           project_id: projectId,
-          product_id: item.type === 'product' && !item.isManual ? item.itemId : null,
+          product_id: !item.isManual ? item.itemId : null,
           service_id: null,
           quantidade: item.quantidade,
           preco_unitario: item.preco_unitario,
           desconto: item.desconto,
           total: item.total,
           parent_service_id: null,
-          item_type: item.type,
+          item_type: 'product',
           is_manual: item.isManual || false,
-          nome: item.isManual || item.type === 'foam' ? item.nome : null,
-          largura: item.largura || null,
-          comprimento: item.comprimento || null,
-          altura: item.altura || null,
-          metro_cubico: item.metroCubico || null,
-          preco_m3: item.precoM3 || null,
+          nome: item.isManual ? item.nome : null,
+          largura: null,
+          comprimento: null,
+          altura: null,
+          metro_cubico: null,
+          preco_m3: null,
         });
       }
     };
