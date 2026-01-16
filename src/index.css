@@ -1,106 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 40 30% 96%;
-    --foreground: 40 15% 20%;
+    /* New minimalist palette - #181a18 and #ffffff */
+    --background: 120 5% 100%;
+    --foreground: 120 5% 10%;
 
-    --card: 40 25% 98%;
-    --card-foreground: 40 15% 20%;
+    --card: 120 5% 100%;
+    --card-foreground: 120 5% 10%;
 
-    --popover: 40 25% 98%;
-    --popover-foreground: 40 15% 20%;
+    --popover: 120 5% 100%;
+    --popover-foreground: 120 5% 10%;
 
-    --primary: 40 15% 45%;
-    --primary-foreground: 40 30% 96%;
+    --primary: 120 5% 10%;
+    --primary-foreground: 120 5% 100%;
 
-    --secondary: 40 20% 90%;
-    --secondary-foreground: 40 15% 30%;
+    --secondary: 120 3% 96%;
+    --secondary-foreground: 120 5% 15%;
 
-    --muted: 40 15% 90%;
-    --muted-foreground: 40 10% 50%;
+    --muted: 120 3% 94%;
+    --muted-foreground: 120 3% 45%;
 
-    --accent: 40 25% 88%;
-    --accent-foreground: 40 15% 25%;
+    --accent: 120 3% 95%;
+    --accent-foreground: 120 5% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 20% 85%;
-    --input: 40 20% 85%;
-    --ring: 40 15% 45%;
+    --border: 120 3% 90%;
+    --input: 120 3% 90%;
+    --ring: 120 5% 10%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     /* Brand colors */
-    --brand: 40 12% 66%;
-    --brand-foreground: 40 15% 20%;
+    --brand: 120 5% 10%;
+    --brand-foreground: 120 5% 100%;
 
     /* Status colors */
     --status-success: 142 71% 45%;
-    --status-warning: 48 96% 53%;
+    --status-warning: 45 93% 47%;
     --status-error: 0 84% 60%;
     --status-info: 217 91% 60%;
 
     /* Gantt specific */
-    --gantt-grid: 40 15% 88%;
+    --gantt-grid: 120 3% 92%;
     --gantt-today: 0 84% 60%;
 
-    --sidebar-background: 40 25% 97%;
-    --sidebar-foreground: 40 15% 30%;
-    --sidebar-primary: 40 15% 45%;
-    --sidebar-primary-foreground: 40 30% 96%;
-    --sidebar-accent: 40 20% 92%;
-    --sidebar-accent-foreground: 40 15% 25%;
-    --sidebar-border: 40 20% 88%;
-    --sidebar-ring: 40 15% 45%;
+    --sidebar-background: 120 5% 99%;
+    --sidebar-foreground: 120 5% 15%;
+    --sidebar-primary: 120 5% 10%;
+    --sidebar-primary-foreground: 120 5% 100%;
+    --sidebar-accent: 120 3% 95%;
+    --sidebar-accent-foreground: 120 5% 10%;
+    --sidebar-border: 120 3% 92%;
+    --sidebar-ring: 120 5% 10%;
+
+    /* Glass effects */
+    --glass-bg: 120 5% 100%;
+    --glass-border: 120 3% 85%;
+    --glass-blur: 20px;
   }
 
   .dark {
-    --background: 40 15% 10%;
-    --foreground: 40 15% 90%;
+    /* Dark mode - inverted minimalist palette */
+    --background: 120 5% 10%;
+    --foreground: 120 5% 95%;
 
-    --card: 40 10% 14%;
-    --card-foreground: 40 15% 90%;
+    --card: 120 5% 12%;
+    --card-foreground: 120 5% 95%;
 
-    --popover: 40 10% 14%;
-    --popover-foreground: 40 15% 90%;
+    --popover: 120 5% 12%;
+    --popover-foreground: 120 5% 95%;
 
-    --primary: 40 15% 70%;
-    --primary-foreground: 40 15% 10%;
+    --primary: 120 5% 95%;
+    --primary-foreground: 120 5% 10%;
 
-    --secondary: 40 10% 20%;
-    --secondary-foreground: 40 15% 85%;
+    --secondary: 120 3% 16%;
+    --secondary-foreground: 120 5% 90%;
 
-    --muted: 40 10% 20%;
-    --muted-foreground: 40 10% 60%;
+    --muted: 120 3% 18%;
+    --muted-foreground: 120 3% 60%;
 
-    --accent: 40 10% 25%;
-    --accent-foreground: 40 15% 90%;
+    --accent: 120 3% 18%;
+    --accent-foreground: 120 5% 95%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 10% 25%;
-    --input: 40 10% 25%;
-    --ring: 40 15% 70%;
+    --border: 120 3% 20%;
+    --input: 120 3% 20%;
+    --ring: 120 5% 95%;
 
-    --brand: 40 12% 70%;
-    --brand-foreground: 40 15% 10%;
+    --brand: 120 5% 95%;
+    --brand-foreground: 120 5% 10%;
 
-    --gantt-grid: 40 10% 20%;
+    --gantt-grid: 120 3% 18%;
     --gantt-today: 0 84% 50%;
 
-    --sidebar-background: 40 10% 12%;
-    --sidebar-foreground: 40 15% 85%;
-    --sidebar-primary: 40 15% 70%;
-    --sidebar-primary-foreground: 40 15% 10%;
-    --sidebar-accent: 40 10% 18%;
-    --sidebar-accent-foreground: 40 15% 90%;
-    --sidebar-border: 40 10% 20%;
-    --sidebar-ring: 40 15% 70%;
+    --sidebar-background: 120 5% 8%;
+    --sidebar-foreground: 120 5% 90%;
+    --sidebar-primary: 120 5% 95%;
+    --sidebar-primary-foreground: 120 5% 10%;
+    --sidebar-accent: 120 3% 15%;
+    --sidebar-accent-foreground: 120 5% 95%;
+    --sidebar-border: 120 3% 18%;
+    --sidebar-ring: 120 5% 95%;
+
+    /* Glass effects - dark mode */
+    --glass-bg: 120 5% 15%;
+    --glass-border: 120 3% 25%;
   }
 }
 
@@ -116,6 +129,106 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Liquid Glass Card Effect */
+  .liquid-glass {
+    @apply relative overflow-hidden rounded-xl;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--glass-bg) / 0.7) 0%,
+      hsl(var(--glass-bg) / 0.5) 50%,
+      hsl(var(--glass-bg) / 0.6) 100%
+    );
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid hsl(var(--glass-border) / 0.5);
+    box-shadow: 
+      0 4px 24px -1px hsl(var(--foreground) / 0.05),
+      0 2px 8px -1px hsl(var(--foreground) / 0.03),
+      inset 0 1px 0 hsl(var(--background) / 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--background) / 0.8) 50%,
+      transparent 100%
+    );
+  }
+
+  .liquid-glass:hover {
+    box-shadow: 
+      0 20px 40px -5px hsl(var(--foreground) / 0.15),
+      0 10px 20px -5px hsl(var(--foreground) / 0.08),
+      inset 0 1px 0 hsl(var(--background) / 0.6);
+    transform: translateY(-2px);
+    border-color: hsl(var(--glass-border) / 0.7);
+  }
+
+  /* Subtle Glass - for less prominent elements */
+  .glass-subtle {
+    background: hsl(var(--glass-bg) / 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--glass-border) / 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .glass-subtle:hover {
+    background: hsl(var(--glass-bg) / 0.6);
+    box-shadow: 0 8px 24px -4px hsl(var(--foreground) / 0.1);
+  }
+
+  /* Enhanced shadow hover for all interactive elements */
+  .hover-shadow {
+    @apply transition-all duration-300;
+    box-shadow: 0 1px 3px hsl(var(--foreground) / 0.05);
+  }
+
+  .hover-shadow:hover {
+    box-shadow: 
+      0 20px 40px -10px hsl(var(--foreground) / 0.2),
+      0 10px 20px -5px hsl(var(--foreground) / 0.1);
+    transform: translateY(-1px);
+  }
+
+  /* Minimalist button styles */
+  .btn-minimal {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    box-shadow: 0 1px 2px hsl(var(--foreground) / 0.05);
+  }
+
+  .btn-minimal:hover {
+    box-shadow: 
+      0 10px 30px -5px hsl(var(--foreground) / 0.2),
+      0 4px 10px -2px hsl(var(--foreground) / 0.1);
+    transform: translateY(-1px);
+  }
+
+  /* Ghost button with enhanced hover */
+  .btn-ghost {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300;
+    background: transparent;
+    color: hsl(var(--foreground));
+  }
+
+  .btn-ghost:hover {
+    background: hsl(var(--accent));
+    box-shadow: 0 4px 12px hsl(var(--foreground) / 0.08);
   }
 }
 
@@ -133,7 +246,7 @@
   }
 
   .status-warning {
-    @apply bg-[hsl(var(--status-warning))] text-black;
+    @apply bg-[hsl(var(--status-warning))] text-white;
   }
 
   .status-error {
@@ -154,6 +267,11 @@
 
   .animate-scale-in {
     animation: scaleIn 0.2s ease-out;
+  }
+
+  /* Smooth transitions for all interactive elements */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
   }
 }
 
@@ -190,23 +308,23 @@
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - minimalist */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-muted/50 rounded-full;
+  @apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full hover:bg-muted-foreground/50 transition-colors;
+  @apply bg-foreground/10 rounded-full hover:bg-foreground/20 transition-colors;
 }
 
 /* Gantt chart scrollbar */
 .gantt-scroll::-webkit-scrollbar {
-  height: 10px;
+  height: 8px;
 }
 
 .gantt-scroll::-webkit-scrollbar-track {
@@ -214,7 +332,7 @@
 }
 
 .gantt-scroll::-webkit-scrollbar-thumb {
-  @apply bg-primary/30 rounded-full hover:bg-primary/50;
+  @apply bg-foreground/20 rounded-full hover:bg-foreground/30;
 }
 
 /* Hidden scrollbar - keeps scroll functional but invisible */
@@ -225,4 +343,16 @@
 
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
+}
+
+/* Selection styling */
+::selection {
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--foreground));
+}
+
+/* Focus visible styles - clean and minimal */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring) / 0.5);
+  outline-offset: 2px;
 }
