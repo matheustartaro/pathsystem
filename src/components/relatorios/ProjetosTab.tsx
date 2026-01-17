@@ -82,18 +82,17 @@ export function ProjetosTab() {
     return Object.values(byStatus);
   }, [projects]);
 
-  // Projects by client
+  // Projects by client (using cliente name from project)
   const projectsByClient = useMemo(() => {
     const byClient: Record<string, { nome: string; quantidade: number; valor: number }> = {};
     projects.forEach(p => {
-      const client = responsaveis.find(r => r.id === p.clientId);
-      const nome = client?.nome || p.cliente || 'Sem cliente';
+      const nome = p.cliente || 'Sem cliente';
       if (!byClient[nome]) byClient[nome] = { nome, quantidade: 0, valor: 0 };
       byClient[nome].quantidade += 1;
-      byClient[nome].valor += p.valor;
+      byClient[nome].valor += p.valor || 0;
     });
     return Object.values(byClient).sort((a, b) => b.valor - a.valor).slice(0, 5);
-  }, [projects, responsaveis]);
+  }, [projects]);
 
   // Revenue by project (from transactions)
   const revenueByProject = useMemo(() => {
