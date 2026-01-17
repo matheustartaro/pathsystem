@@ -68,8 +68,8 @@ const navItems: NavItem[] = [
     label: 'Projetos',
     description: 'Gestão de projetos',
     subItems: [
-      { icon: Layers, label: 'Lista de Projetos', description: 'Todos os projetos', href: '/projetos' },
-      { icon: CalendarRange, label: 'Gantt', description: 'Cronograma visual', href: '/gantt' },
+      { icon: Layers, label: 'Projetos', description: 'Todos os projetos', href: '/projetos' },
+      { icon: CalendarRange, label: 'Cronograma', description: 'Cronograma visual', href: '/gantt' },
     ]
   },
   { 
