@@ -3,14 +3,13 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
   Calendar, Clock, CheckCircle2, AlertTriangle, Plus, User, Pencil, Trash2,
-  Package, Wrench, DollarSign, FileText, ListTodo, BarChart3, PackageMinus, Loader2
+  Package, Wrench, DollarSign, FileText, ListTodo, BarChart3
 } from 'lucide-react';
 import { Project, Task, ProjectStatus } from '@/types/project';
 import { useStatusCategories } from '@/hooks/useStatusCategories';
 import { useOrderItems } from '@/hooks/useOrderItems';
 import { useProducts } from '@/hooks/useProducts';
 import { useServices } from '@/hooks/useServices';
-import { useStockMovements } from '@/hooks/useStockMovements';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -26,7 +25,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { ProjectFinanceSection } from '@/components/projects/ProjectFinanceSection';
-import { toast } from 'sonner';
 
 interface ProjectDetailDialogProps {
   project: Project | null;
@@ -59,11 +57,9 @@ export function ProjectDetailDialog({
   const [localProject, setLocalProject] = useState<Project | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingTaskName, setEditingTaskName] = useState('');
-  const [isProcessingStock, setIsProcessingStock] = useState(false);
 
   // Order items for this project - use project?.id to ensure stable hook call
   const { orderItems } = useOrderItems(project?.id);
-  const { processProjectStock, movements } = useStockMovements();
 
   // Sync local state with project prop
   useEffect(() => {
@@ -116,27 +112,6 @@ export function ProjectDetailDialog({
       total,
     };
   }, [orderItems, products, services]);
-
-  // Check if stock has already been deducted for this project
-  const stockAlreadyDeducted = useMemo(() => {
-    return movements.some(m => m.project_id === localProject?.id);
-  }, [movements, localProject?.id]);
-
-  // Products that can be deducted (from order items)
-  const productsToDeduct = useMemo(() => {
-    if (!orderItems || !localProject) return [];
-    return orderItems
-      .filter(item => item.product_id && item.item_type === 'product')
-      .map(item => {
-        const product = products.find(p => p.id === item.product_id);
-        return {
-          id: item.product_id!,
-          nome: item.nome || product?.nome || 'Produto',
-          quantidade: item.quantidade,
-          estoqueAtual: product?.estoque_atual || 0,
-        };
-      });
-  }, [orderItems, products, localProject]);
 
   // Early return AFTER all hooks
   if (!localProject) return null;
@@ -228,20 +203,6 @@ export function ProjectDetailDialog({
     onDeleteTask?.(localProject.id, taskId);
   };
 
-  const handleProcessStock = async () => {
-    if (!localProject) return;
-    
-    setIsProcessingStock(true);
-    try {
-      await processProjectStock(localProject.id);
-      toast.success('Baixa de estoque realizada com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao processar baixa de estoque');
-    } finally {
-      setIsProcessingStock(false);
-    }
-  };
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -305,7 +266,7 @@ export function ProjectDetailDialog({
         </DialogHeader>
 
         <Tabs defaultValue="resumo" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="w-full grid grid-cols-5">
+          <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="resumo" className="gap-1 text-xs sm:text-sm">
               <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Resumo</span>
@@ -317,10 +278,6 @@ export function ProjectDetailDialog({
             <TabsTrigger value="tasks" className="gap-1 text-xs sm:text-sm">
               <ListTodo className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Tarefas</span>
-            </TabsTrigger>
-            <TabsTrigger value="stock" className="gap-1 text-xs sm:text-sm">
-              <PackageMinus className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Estoque</span>
             </TabsTrigger>
             <TabsTrigger value="finance" className="gap-1 text-xs sm:text-sm">
               <DollarSign className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -654,80 +611,6 @@ export function ProjectDetailDialog({
                   </div>
                 ))}
               </div>
-            )}
-          </TabsContent>
-
-          {/* ESTOQUE TAB */}
-          <TabsContent value="stock" className="flex-1 overflow-y-auto py-4 space-y-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-medium text-foreground">
-                Baixa de Estoque
-              </h4>
-              {stockAlreadyDeducted && (
-                <span className="text-xs text-green-600 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" />
-                  Baixa realizada
-                </span>
-              )}
-            </div>
-
-            {productsToDeduct.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground text-sm">
-                <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>Nenhum produto no pedido</p>
-                <p className="text-xs">Adicione produtos ao pedido para dar baixa no estoque</p>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  {productsToDeduct.map((product) => (
-                    <div 
-                      key={product.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{product.nome}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Estoque atual: {product.estoqueAtual} un
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-sm font-semibold text-destructive">
-                          -{product.quantidade} un
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {!stockAlreadyDeducted && (
-                  <Button 
-                    onClick={handleProcessStock} 
-                    disabled={isProcessingStock}
-                    className="w-full gap-2"
-                    variant="destructive"
-                  >
-                    {isProcessingStock ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <PackageMinus className="w-4 h-4" />
-                    )}
-                    Dar Baixa no Estoque
-                  </Button>
-                )}
-
-                {stockAlreadyDeducted && (
-                  <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle2 className="w-5 h-5" />
-                      <span className="font-medium">Estoque já foi baixado</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      A baixa de estoque para este projeto já foi realizada anteriormente.
-                    </p>
-                  </div>
-                )}
-              </>
             )}
           </TabsContent>
 

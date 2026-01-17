@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Package, Edit2, Trash2, MoreHorizontal, Filter, BoxIcon, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Package, Edit2, Trash2, MoreHorizontal, Filter, BoxIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useProducts } from '@/hooks/useProducts';
 import { ProductFormDialog } from '@/components/catalogo/ProductFormDialog';
@@ -19,7 +19,6 @@ export default function ProdutosPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'todos' | 'ativo' | 'inativo'>('todos');
   const [categoryFilter, setCategoryFilter] = useState<string>('todos');
-  const [stockFilter, setStockFilter] = useState<'todos' | 'normal' | 'baixo' | 'zerado'>('todos');
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
@@ -27,13 +26,9 @@ export default function ProdutosPage() {
       const matchesStatus = statusFilter === 'todos' || 
         (statusFilter === 'ativo' ? p.ativo : !p.ativo);
       const matchesCategory = categoryFilter === 'todos' || p.category_id === categoryFilter;
-      const matchesStock = stockFilter === 'todos' || 
-        (stockFilter === 'normal' && p.estoque_atual > p.estoque_minimo) ||
-        (stockFilter === 'baixo' && p.estoque_atual <= p.estoque_minimo && p.estoque_atual > 0) ||
-        (stockFilter === 'zerado' && p.estoque_atual === 0);
-      return matchesSearch && matchesStatus && matchesCategory && matchesStock;
+      return matchesSearch && matchesStatus && matchesCategory;
     });
-  }, [products, search, statusFilter, categoryFilter, stockFilter]);
+  }, [products, search, statusFilter, categoryFilter]);
 
   const handleEdit = (product: typeof products[0]) => {
     setEditingProduct(product);
@@ -57,8 +52,7 @@ export default function ProdutosPage() {
   };
 
   const activeProducts = products.filter(p => p.ativo);
-  const lowStockProducts = products.filter(p => p.estoque_atual <= p.estoque_minimo && p.estoque_atual > 0);
-  const outOfStockProducts = products.filter(p => p.estoque_atual === 0);
+  const inactiveProducts = products.filter(p => !p.ativo);
 
   const productCategories = categories.filter(c => c.tipo === 'produto');
 
@@ -78,7 +72,7 @@ export default function ProdutosPage() {
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total</CardTitle>
@@ -101,22 +95,12 @@ export default function ProdutosPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Estoque Baixo</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-[hsl(var(--status-warning))]" />
+              <CardTitle className="text-sm font-medium">Inativos</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[hsl(var(--status-warning))]">{lowStockProducts.length}</div>
-              <p className="text-xs text-muted-foreground">Abaixo do mínimo</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Sem Estoque</CardTitle>
-              <Package className="h-4 w-4 text-destructive" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-destructive">{outOfStockProducts.length}</div>
-              <p className="text-xs text-muted-foreground">Zerados</p>
+              <div className="text-2xl font-bold text-muted-foreground">{inactiveProducts.length}</div>
+              <p className="text-xs text-muted-foreground">Desativados</p>
             </CardContent>
           </Card>
         </div>
@@ -161,17 +145,6 @@ export default function ProdutosPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Select value={stockFilter} onValueChange={(v: any) => setStockFilter(v)}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todo estoque</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="baixo">Estoque baixo</SelectItem>
-                    <SelectItem value="zerado">Sem estoque</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </CardHeader>
@@ -191,7 +164,6 @@ export default function ProdutosPage() {
                     <TableHead>Produto</TableHead>
                     <TableHead>Custo</TableHead>
                     <TableHead>Preço Venda</TableHead>
-                    <TableHead>Estoque</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="w-12"></TableHead>
                   </TableRow>
@@ -211,17 +183,6 @@ export default function ProdutosPage() {
                       </TableCell>
                       <TableCell>R$ {product.custo.toFixed(2)}</TableCell>
                       <TableCell className="font-medium">R$ {product.preco_venda.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <span className={
-                          product.estoque_atual === 0 
-                            ? 'text-destructive font-medium' 
-                            : product.estoque_atual <= product.estoque_minimo 
-                              ? 'text-[hsl(var(--status-warning))] font-medium' 
-                              : ''
-                        }>
-                          {product.estoque_atual} {product.unidade}
-                        </span>
-                      </TableCell>
                       <TableCell>
                         <Badge variant={product.ativo ? 'default' : 'secondary'}>
                           {product.ativo ? 'Ativo' : 'Inativo'}
