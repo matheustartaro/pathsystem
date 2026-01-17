@@ -18,7 +18,10 @@ import NotFound from "./pages/NotFound";
 // Financeiro
 import FluxoCaixaPage from "./pages/financeiro/FluxoCaixaPage";
 import ContasPage from "./pages/financeiro/ContasPage";
-import RelatoriosPage from "./pages/financeiro/RelatoriosPage";
+import RelatoriosFinanceiroPage from "./pages/financeiro/RelatoriosPage";
+
+// Relatórios
+import RelatoriosPage from "./pages/relatorios/RelatoriosPage";
 
 // Catálogo
 import ProdutosPage from "./pages/catalogo/ProdutosPage";
@@ -57,7 +60,10 @@ const App = () => (
               {/* Financeiro */}
               <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><FluxoCaixaPage /></ProtectedRoute>} />
               <Route path="/financeiro/contas" element={<ProtectedRoute><ContasPage /></ProtectedRoute>} />
-              <Route path="/financeiro/relatorios" element={<ProtectedRoute><RelatoriosPage /></ProtectedRoute>} />
+              <Route path="/financeiro/relatorios" element={<ProtectedRoute><RelatoriosFinanceiroPage /></ProtectedRoute>} />
+              
+              {/* Relatórios */}
+              <Route path="/relatorios" element={<ProtectedRoute><RelatoriosPage /></ProtectedRoute>} />
               
               {/* Catálogo */}
               <Route path="/catalogo/produtos" element={<ProtectedRoute><ProdutosPage /></ProtectedRoute>} />

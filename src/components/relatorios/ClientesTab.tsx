@@ -55,8 +55,9 @@ export function ClientesTab() {
     const threeMonthsAgo = subMonths(new Date(), 3);
     const novos = clientes.filter(c => isAfter(new Date(c.createdAt), threeMonthsAgo)).length;
 
-    // Clients with projects
-    const comProjetos = new Set(projects.map(p => p.clientId).filter(Boolean)).size;
+    // Clients with projects (using cliente name match since Project doesn't have clientId)
+    const clienteNames = new Set(clientes.map(c => c.nome.toLowerCase()));
+    const comProjetos = projects.filter(p => clienteNames.has(p.cliente.toLowerCase())).length;
 
     // Total revenue from clients
     const receitaTotal = transactions
@@ -82,18 +83,16 @@ export function ClientesTab() {
     return Object.values(byClient).sort((a, b) => b.valor - a.valor).slice(0, 8);
   }, [transactions, responsaveis]);
 
-  // Clients by projects count
+  // Clients by projects count (match by cliente name)
   const clientsByProjects = useMemo(() => {
     const byClient: Record<string, { nome: string; projetos: number; valor: number }> = {};
 
     projects.forEach(p => {
-      if (p.clientId) {
-        const client = responsaveis.find(r => r.id === p.clientId);
-        if (client) {
-          if (!byClient[client.id]) byClient[client.id] = { nome: client.nome, projetos: 0, valor: 0 };
-          byClient[client.id].projetos += 1;
-          byClient[client.id].valor += p.valor;
-        }
+      const clientName = p.cliente;
+      if (clientName) {
+        if (!byClient[clientName]) byClient[clientName] = { nome: clientName, projetos: 0, valor: 0 };
+        byClient[clientName].projetos += 1;
+        byClient[clientName].valor += p.valor || 0;
       }
     });
 

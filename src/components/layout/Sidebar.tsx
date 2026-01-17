@@ -61,7 +61,6 @@ const navItems: NavItem[] = [
     subItems: [
       { icon: ArrowUpDown, label: 'Fluxo de Caixa', description: 'Movimentações', href: '/financeiro/fluxo-caixa' },
       { icon: Landmark, label: 'Contas', description: 'Contas bancárias', href: '/financeiro/contas' },
-      { icon: BarChart3, label: 'Relatórios', description: 'Análises', href: '/financeiro/relatorios' },
     ]
   },
   { 
@@ -98,6 +97,12 @@ const navItems: NavItem[] = [
     label: 'Agenda',
     description: 'Compromissos',
     href: '/agenda' 
+  },
+  { 
+    icon: BarChart3, 
+    label: 'Relatórios',
+    description: 'Análises do negócio',
+    href: '/relatorios' 
   },
   { 
     icon: Database, 
