@@ -79,7 +79,6 @@ const navItems: NavItem[] = [
     subItems: [
       { icon: BoxIcon, label: 'Produtos', description: 'Lista de produtos', href: '/catalogo/produtos' },
       { icon: HandCoins, label: 'Serviços', description: 'Lista de serviços', href: '/catalogo/servicos' },
-      { icon: Boxes, label: 'Estoque', description: 'Controle de estoque', href: '/catalogo/estoque' },
       { icon: Tags, label: 'Tabela de Preços', description: 'Preços e valores', href: '/catalogo/precos' },
     ]
   },
@@ -105,15 +104,9 @@ const navItems: NavItem[] = [
     href: '/relatorios' 
   },
   { 
-    icon: Database, 
-    label: 'Banco de Dados',
-    description: 'Configurações gerais',
-    href: '/banco-de-dados' 
-  },
-  { 
     icon: Settings, 
     label: 'Configurações',
-    description: 'Preferências',
+    description: 'Preferências e dados',
     href: '/configuracoes' 
   },
 ];

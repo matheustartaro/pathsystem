@@ -10,7 +10,6 @@ import Dashboard from "./pages/Dashboard";
 import GanttPage from "./pages/GanttPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
-import DatabasePage from "./pages/DatabasePage";
 import SettingsPage from "./pages/SettingsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
@@ -26,7 +25,6 @@ import RelatoriosPage from "./pages/relatorios/RelatoriosPage";
 // Catálogo
 import ProdutosPage from "./pages/catalogo/ProdutosPage";
 import ServicosPage from "./pages/catalogo/ServicosPage";
-import EstoquePage from "./pages/catalogo/EstoquePage";
 import PrecosPage from "./pages/catalogo/PrecosPage";
 
 // Clientes
@@ -54,7 +52,6 @@ const App = () => (
               <Route path="/gantt" element={<ProtectedRoute><GanttPage /></ProtectedRoute>} />
               <Route path="/projetos" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
               <Route path="/projetos/:id" element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} />
-              <Route path="/banco-de-dados" element={<ProtectedRoute><DatabasePage /></ProtectedRoute>} />
               <Route path="/configuracoes" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               
               {/* Financeiro */}
@@ -68,7 +65,6 @@ const App = () => (
               {/* Catálogo */}
               <Route path="/catalogo/produtos" element={<ProtectedRoute><ProdutosPage /></ProtectedRoute>} />
               <Route path="/catalogo/servicos" element={<ProtectedRoute><ServicosPage /></ProtectedRoute>} />
-              <Route path="/catalogo/estoque" element={<ProtectedRoute><EstoquePage /></ProtectedRoute>} />
               <Route path="/catalogo/precos" element={<ProtectedRoute><PrecosPage /></ProtectedRoute>} />
               
               {/* Clientes */}

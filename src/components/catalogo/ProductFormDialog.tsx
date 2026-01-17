@@ -31,8 +31,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSuccess }: Pr
     custo: 0,
     preco_venda: 0,
     markup: 0,
-    estoque_atual: 0,
-    estoque_minimo: 0,
     unidade: 'un',
     category_id: '',
     supplier_id: '',
