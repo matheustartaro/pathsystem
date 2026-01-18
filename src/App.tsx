@@ -44,8 +44,8 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <GlobalSearchDialog />
           <BrowserRouter>
+            <GlobalSearchDialog />
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
               
