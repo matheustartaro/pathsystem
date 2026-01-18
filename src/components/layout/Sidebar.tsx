@@ -24,7 +24,8 @@ import {
   UserRoundPlus,
   PanelLeftClose,
   PanelLeft,
-  BarChart3
+  BarChart3,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/useTheme';
@@ -96,6 +97,12 @@ const navItems: NavItem[] = [
     label: 'Agenda',
     description: 'Compromissos',
     href: '/agenda' 
+  },
+  { 
+    icon: FileText, 
+    label: 'Orçamentos',
+    description: 'Propostas comerciais',
+    href: '/orcamentos' 
   },
   { 
     icon: BarChart3, 

@@ -35,6 +35,9 @@ import NovoClientePage from "./pages/clientes/NovoClientePage";
 // Agenda
 import AgendaPage from "./pages/agenda/AgendaPage";
 
+// Orçamentos
+import OrcamentosPage from "./pages/orcamentos/OrcamentosPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -75,6 +78,9 @@ const App = () => (
               
               {/* Agenda */}
               <Route path="/agenda" element={<ProtectedRoute><AgendaPage /></ProtectedRoute>} />
+              
+              {/* Orçamentos */}
+              <Route path="/orcamentos" element={<ProtectedRoute><OrcamentosPage /></ProtectedRoute>} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

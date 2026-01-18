@@ -1,17 +1,23 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ArrowLeft, Calendar, User, CheckCircle2, Circle, Clock, Edit } from 'lucide-react';
+import { ArrowLeft, Calendar, User, CheckCircle2, Circle, Clock, Edit, Plus, Paperclip, MessageCircle, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AppLayout } from '@/components/layout';
 import { useProjects } from '@/hooks/useProjects';
 import { getStatusLabel, getStatusColor } from '@/data/mockProjects';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ProjectFilesSection } from '@/components/projects/ProjectFilesSection';
+import { ProjectActivitySection } from '@/components/projects/ProjectActivitySection';
+import { ProjectCommentsSection } from '@/components/projects/ProjectCommentsSection';
 
 const ProjectDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { getProjectById, updateProject, isLoading } = useProjects();
+  const [activeTab, setActiveTab] = useState('tarefas');
 
   const project = id ? getProjectById(id) : null;
 
@@ -53,7 +59,7 @@ const ProjectDetailPage = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-4xl">
+      <div className="space-y-6">
         {/* Back Link */}
         <Link
           to="/projetos"
@@ -134,70 +140,110 @@ const ProjectDetailPage = () => {
           </div>
         </div>
 
-        {/* Tasks */}
-        <div className="bg-card rounded-lg border border-border shadow-card animate-fade-in">
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <div>
-              <h3 className="font-semibold text-card-foreground">Tarefas</h3>
-              <p className="text-sm text-muted-foreground">
-                {completedTasks} de {project.tarefas.length} concluídas
-              </p>
-            </div>
-            <Button variant="outline" size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Tarefa
-            </Button>
-          </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4 max-w-lg">
+            <TabsTrigger value="tarefas" className="gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Tarefas</span>
+            </TabsTrigger>
+            <TabsTrigger value="arquivos" className="gap-2">
+              <Paperclip className="w-4 h-4" />
+              <span className="hidden sm:inline">Arquivos</span>
+            </TabsTrigger>
+            <TabsTrigger value="atividades" className="gap-2">
+              <Activity className="w-4 h-4" />
+              <span className="hidden sm:inline">Atividades</span>
+            </TabsTrigger>
+            <TabsTrigger value="comentarios" className="gap-2">
+              <MessageCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">Comentários</span>
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="divide-y divide-border">
-            {project.tarefas.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center gap-4 p-4 hover:bg-accent/30 transition-colors"
-              >
-                <Checkbox
-                  checked={task.concluida}
-                  onCheckedChange={() => toggleTask(task.id)}
-                  className="data-[state=checked]:bg-status-success data-[state=checked]:border-status-success"
-                />
-                <div className="flex-1 min-w-0">
-                  <p
-                    className={cn(
-                      'font-medium',
-                      task.concluida
-                        ? 'text-muted-foreground line-through'
-                        : 'text-card-foreground'
-                    )}
-                  >
-                    {task.nome}
+          {/* Tasks Tab */}
+          <TabsContent value="tarefas" className="mt-6">
+            <div className="bg-card rounded-lg border border-border shadow-card animate-fade-in">
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <div>
+                  <h3 className="font-semibold text-card-foreground">Tarefas</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {completedTasks} de {project.tarefas.length} concluídas
                   </p>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      {task.responsavel}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {format(task.dataInicio, "dd MMM", { locale: ptBR })} -{' '}
-                      {format(task.dataFim, "dd MMM", { locale: ptBR })}
-                    </span>
-                  </div>
                 </div>
-                {task.concluida ? (
-                  <CheckCircle2 className="w-5 h-5 text-status-success flex-shrink-0" />
-                ) : (
-                  <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                )}
+                <Button variant="outline" size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nova Tarefa
+                </Button>
               </div>
-            ))}
-          </div>
-        </div>
+
+              <div className="divide-y divide-border">
+                {project.tarefas.map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-center gap-4 p-4 hover:bg-accent/30 transition-colors"
+                  >
+                    <Checkbox
+                      checked={task.concluida}
+                      onCheckedChange={() => toggleTask(task.id)}
+                      className="data-[state=checked]:bg-status-success data-[state=checked]:border-status-success"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={cn(
+                          'font-medium',
+                          task.concluida
+                            ? 'text-muted-foreground line-through'
+                            : 'text-card-foreground'
+                        )}
+                      >
+                        {task.nome}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                        {task.responsavel && (
+                          <span className="flex items-center gap-1">
+                            <User className="w-3 h-3" />
+                            {task.responsavel}
+                          </span>
+                        )}
+                        {task.dataInicio && task.dataFim && (
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {format(task.dataInicio, "dd MMM", { locale: ptBR })} -{' '}
+                            {format(task.dataFim, "dd MMM", { locale: ptBR })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {task.concluida ? (
+                      <CheckCircle2 className="w-5 h-5 text-status-success flex-shrink-0" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Files Tab */}
+          <TabsContent value="arquivos" className="mt-6">
+            <ProjectFilesSection projectId={id!} />
+          </TabsContent>
+
+          {/* Activities Tab */}
+          <TabsContent value="atividades" className="mt-6">
+            <ProjectActivitySection projectId={id!} />
+          </TabsContent>
+
+          {/* Comments Tab */}
+          <TabsContent value="comentarios" className="mt-6">
+            <ProjectCommentsSection projectId={id!} />
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
 };
-
-// Need to import Plus for the button
-import { Plus } from 'lucide-react';
 
 export default ProjectDetailPage;
