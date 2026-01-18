@@ -47,8 +47,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSuccess }: Pr
         custo: product.custo,
         preco_venda: product.preco_venda,
         markup: product.markup || settings.markup_padrao || 2,
-        estoque_atual: product.estoque_atual,
-        estoque_minimo: product.estoque_minimo,
         unidade: product.unidade || 'un',
         category_id: product.category_id || '',
         supplier_id: product.supplier_id || '',
@@ -62,8 +60,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSuccess }: Pr
         custo: 0,
         preco_venda: 0,
         markup: settings.markup_padrao || 2,
-        estoque_atual: 0,
-        estoque_minimo: 0,
         unidade: 'un',
         category_id: '',
         supplier_id: '',
@@ -156,8 +152,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSuccess }: Pr
         custo: formData.custo,
         preco_venda: formData.preco_venda,
         markup: useCustomMarkup ? formData.markup : null,
-        estoque_atual: formData.estoque_atual,
-        estoque_minimo: formData.estoque_minimo,
         unidade: formData.unidade,
         category_id: formData.category_id || null,
         supplier_id: formData.supplier_id || null,
@@ -349,34 +343,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSuccess }: Pr
               </div>
               <div className="text-xs text-muted-foreground">
                 <span className="font-medium">Markup padrão:</span> {formatMultiplier(settings.markup_padrao)}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-muted/50 rounded-lg p-4 space-y-4">
-            <h4 className="font-medium text-sm">Estoque</h4>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="estoque_atual">Estoque Atual</Label>
-                <Input
-                  id="estoque_atual"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.estoque_atual}
-                  onChange={(e) => setFormData(prev => ({ ...prev, estoque_atual: parseFloat(e.target.value) || 0 }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="estoque_minimo">Estoque Mínimo</Label>
-                <Input
-                  id="estoque_minimo"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.estoque_minimo}
-                  onChange={(e) => setFormData(prev => ({ ...prev, estoque_minimo: parseFloat(e.target.value) || 0 }))}
-                />
               </div>
             </div>
           </div>

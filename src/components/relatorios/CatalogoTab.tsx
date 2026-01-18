@@ -50,10 +50,8 @@ export function CatalogoTab() {
     const produtosInativos = products.filter(p => !p.ativo).length;
     const servicosAtivos = services.filter(s => s.ativo).length;
     const servicosInativos = services.filter(s => !s.ativo).length;
-    const estoqueBaixo = products.filter(p => p.estoque_atual <= p.estoque_minimo).length;
-    const valorEstoque = products.reduce((s, p) => s + (p.estoque_atual * p.custo), 0);
 
-    return { produtosAtivos, produtosInativos, servicosAtivos, servicosInativos, estoqueBaixo, valorEstoque };
+    return { produtosAtivos, produtosInativos, servicosAtivos, servicosInativos };
   }, [products, services]);
 
   // Top products by usage
@@ -102,13 +100,7 @@ export function CatalogoTab() {
     return Object.values(byCategory);
   }, [products, productCategories]);
 
-  // Low stock products
-  const lowStockProducts = useMemo(() => {
-    return products
-      .filter(p => p.estoque_atual <= p.estoque_minimo)
-      .sort((a, b) => a.estoque_atual - b.estoque_atual)
-      .slice(0, 5);
-  }, [products]);
+  // Removed low stock functionality
 
   return (
     <div className="space-y-6">
@@ -170,33 +162,6 @@ export function CatalogoTab() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${catalogKPIs.estoqueBaixo > 0 ? 'bg-destructive/10' : 'bg-green-100 dark:bg-green-900/30'}`}>
-                <AlertTriangle className={`h-5 w-5 ${catalogKPIs.estoqueBaixo > 0 ? 'text-destructive' : 'text-green-600'}`} />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Estoque Baixo</p>
-                <p className={`text-lg font-bold ${catalogKPIs.estoqueBaixo > 0 ? 'text-destructive' : ''}`}>{catalogKPIs.estoqueBaixo}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Valor Estoque</p>
-                <p className="text-lg font-bold">{formatCurrency(catalogKPIs.valorEstoque)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Charts */}
@@ -300,35 +265,6 @@ export function CatalogoTab() {
           </CardContent>
         </Card>
 
-        {/* Low Stock */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Package className="h-5 w-5 text-destructive" />
-              Produtos com Estoque Baixo
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {lowStockProducts.length > 0 ? (
-              <div className="space-y-3">
-                {lowStockProducts.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <AlertTriangle className="h-4 w-4 text-destructive" />
-                      <span className="text-sm font-medium truncate max-w-[180px]">{product.nome}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm font-bold text-destructive">{product.estoque_atual}</span>
-                      <span className="text-xs text-muted-foreground"> / {product.estoque_minimo}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-muted-foreground py-8">Nenhum produto com estoque baixo</p>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

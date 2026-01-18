@@ -131,7 +131,7 @@ export function VisaoGeralTab() {
   const produtosAtivos = products.filter(p => p.ativo).length;
   const servicosAtivos = services.filter(s => s.ativo).length;
   const projetosAtivos = projects.filter(p => p.status !== 'concluido' && p.status !== 'cancelado').length;
-  const produtosEstoqueBaixo = products.filter(p => p.estoque_atual <= p.estoque_minimo).length;
+  // Removed stock functionality
 
   return (
     <div className="space-y-6">
@@ -209,23 +209,6 @@ export function VisaoGeralTab() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${produtosEstoqueBaixo > 0 ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-green-100 dark:bg-green-900/30'}`}>
-                {produtosEstoqueBaixo > 0 ? (
-                  <AlertTriangle className="h-5 w-5 text-amber-600" />
-                ) : (
-                  <BoxIcon className="h-5 w-5 text-green-600" />
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Estoque Baixo</p>
-                <p className="text-lg font-bold">{produtosEstoqueBaixo}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Summary Cards Row */}
