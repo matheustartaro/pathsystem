@@ -56,6 +56,89 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
+      client_access_tokens: {
+        Row: {
+          client_id: string
+          created_at: string
+          created_by: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          last_used_at: string | null
+          token: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          token: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_access_tokens_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "responsaveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       color_palettes: {
         Row: {
           colors: Json
@@ -508,6 +591,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      project_templates: {
+        Row: {
+          categoria: string | null
+          created_at: string
+          created_by: string | null
+          descricao: string | null
+          duracao_dias: number | null
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          duracao_dias?: number | null
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          duracao_dias?: number | null
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       projects: {
         Row: {
@@ -993,6 +1109,105 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_manual: boolean | null
+          item_type: string
+          nome: string | null
+          product_id: string | null
+          quantidade: number | null
+          service_id: string | null
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_manual?: boolean | null
+          item_type?: string
+          nome?: string | null
+          product_id?: string | null
+          quantidade?: number | null
+          service_id?: string | null
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_manual?: boolean | null
+          item_type?: string
+          nome?: string | null
+          product_id?: string | null
+          quantidade?: number | null
+          service_id?: string | null
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "project_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_tasks: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          dias_offset_fim: number | null
+          dias_offset_inicio: number | null
+          id: string
+          nome: string
+          ordem: number | null
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          dias_offset_fim?: number | null
+          dias_offset_inicio?: number | null
+          id?: string
+          nome: string
+          ordem?: number | null
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          dias_offset_fim?: number | null
+          dias_offset_inicio?: number | null
+          id?: string
+          nome?: string
+          ordem?: number | null
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_tasks_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "project_templates"
             referencedColumns: ["id"]
           },
         ]

@@ -22,6 +22,7 @@ export interface Project {
   id: string;
   nome: string;
   cliente: string;
+  clientId?: string | null;
   descricao: string;
   dataInicio: Date;
   dataFim: Date;
