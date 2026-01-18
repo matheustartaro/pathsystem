@@ -290,8 +290,6 @@ export type Database = {
           created_at: string
           custo: number
           descricao: string | null
-          estoque_atual: number
-          estoque_minimo: number
           id: string
           markup: number | null
           nome: string
@@ -306,8 +304,6 @@ export type Database = {
           created_at?: string
           custo?: number
           descricao?: string | null
-          estoque_atual?: number
-          estoque_minimo?: number
           id?: string
           markup?: number | null
           nome: string
@@ -322,8 +318,6 @@ export type Database = {
           created_at?: string
           custo?: number
           descricao?: string | null
-          estoque_atual?: number
-          estoque_minimo?: number
           id?: string
           markup?: number | null
           nome?: string
@@ -623,54 +617,6 @@ export type Database = {
           sort_order?: number | null
         }
         Relationships: []
-      }
-      stock_movements: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          motivo: string | null
-          product_id: string
-          project_id: string | null
-          quantidade: number
-          tipo: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          motivo?: string | null
-          product_id: string
-          project_id?: string | null
-          quantidade: number
-          tipo: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          motivo?: string | null
-          product_id?: string
-          project_id?: string | null
-          quantidade?: number
-          tipo?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "stock_movements_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "stock_movements_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       suppliers: {
         Row: {
