@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { GlobalSearchDialog } from "@/components/search/GlobalSearchDialog";
 import Dashboard from "./pages/Dashboard";
 import GanttPage from "./pages/GanttPage";
 import ProjectsPage from "./pages/ProjectsPage";
@@ -43,6 +44,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <GlobalSearchDialog />
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<AuthPage />} />

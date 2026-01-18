@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Users, Search, UserCheck, Pencil, Trash2, Phone, Mail, MapPin, Filter } from 'lucide-react';
+import { Plus, Users, Search, UserCheck, Pencil, Trash2, Phone, Mail, MapPin, Filter, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useResponsaveis, Responsavel } from '@/hooks/useResponsaveis';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,6 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { MaskedInput } from '@/components/ui/masked-input';
+import { PaginationControls, usePagination } from '@/components/ui/pagination-controls';
 
 const ORIGENS = ['Instagram', 'Facebook', 'Google', 'Indicação', 'WhatsApp', 'Outro'];
 
@@ -22,6 +24,7 @@ export default function ClientesPage() {
   const [cidadeFilter, setCidadeFilter] = useState<string>('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Responsavel | null>(null);
+  const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -34,6 +37,14 @@ export default function ClientesPage() {
     cep: '',
     origem: '',
     observacoes: '',
+  });
+
+  // Validation state
+  const [validationState, setValidationState] = useState({
+    cnpj_cpf: true,
+    telefone: true,
+    email: true,
+    cep: true,
   });
 
   // Get unique cities for filter
@@ -53,7 +64,35 @@ export default function ClientesPage() {
     });
   }, [clientes, search, origemFilter, cidadeFilter]);
 
+  // Pagination
+  const pagination = usePagination(filteredClientes, 25);
+
+  const handleCepBlur = async () => {
+    const cep = formData.cep.replace(/\D/g, '');
+    if (cep.length !== 8) return;
+
+    setIsFetchingCep(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+      
+      if (!data.erro) {
+        setFormData(prev => ({
+          ...prev,
+          endereco: data.logradouro || prev.endereco,
+          cidade: data.localidade || prev.cidade,
+          estado: data.uf || prev.estado,
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao buscar CEP:', error);
+    } finally {
+      setIsFetchingCep(false);
+    }
+  };
+
   const handleOpenDialog = (client?: Responsavel) => {
+    setValidationState({ cnpj_cpf: true, telefone: true, email: true, cep: true });
     if (client) {
       setEditingClient(client);
       setFormData({
@@ -249,56 +288,68 @@ export default function ClientesPage() {
                 <p className="text-sm">Ajuste os filtros ou clique em "Novo Cliente"</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Contato</TableHead>
-                      <TableHead>Cidade</TableHead>
-                      <TableHead>Origem</TableHead>
-                      <TableHead className="w-[100px]">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredClientes.map((cliente) => (
-                      <TableRow key={cliente.id}>
-                        <TableCell className="font-medium">{cliente.nome}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            {cliente.email && (
-                              <span className="flex items-center gap-1 text-sm">
-                                <Mail className="h-3 w-3" /> {cliente.email}
-                              </span>
-                            )}
-                            {cliente.telefone && (
-                              <span className="flex items-center gap-1 text-sm">
-                                <Phone className="h-3 w-3" /> {cliente.telefone}
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>{cliente.cidade || '-'}</TableCell>
-                        <TableCell>
-                          {cliente.origem ? (
-                            <Badge variant="outline">{cliente.origem}</Badge>
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(cliente)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button size="icon" variant="ghost" onClick={() => handleDelete(cliente.id)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </TableCell>
+              <>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Contato</TableHead>
+                        <TableHead>Cidade</TableHead>
+                        <TableHead>Origem</TableHead>
+                        <TableHead className="w-[100px]">Ações</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {pagination.paginatedItems.map((cliente) => (
+                        <TableRow key={cliente.id}>
+                          <TableCell className="font-medium">{cliente.nome}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-col gap-1">
+                              {cliente.email && (
+                                <span className="flex items-center gap-1 text-sm">
+                                  <Mail className="h-3 w-3" /> {cliente.email}
+                                </span>
+                              )}
+                              {cliente.telefone && (
+                                <span className="flex items-center gap-1 text-sm">
+                                  <Phone className="h-3 w-3" /> {cliente.telefone}
+                                </span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>{cliente.cidade || '-'}</TableCell>
+                          <TableCell>
+                            {cliente.origem ? (
+                              <Badge variant="outline">{cliente.origem}</Badge>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(cliente)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button size="icon" variant="ghost" onClick={() => handleDelete(cliente.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="mt-4">
+                  <PaginationControls
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    totalItems={pagination.totalItems}
+                    itemsPerPage={pagination.itemsPerPage}
+                    onPageChange={pagination.onPageChange}
+                    onItemsPerPageChange={pagination.onItemsPerPageChange}
+                  />
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
@@ -321,6 +372,21 @@ export default function ClientesPage() {
               </div>
               <div className="space-y-2">
                 <Label>CPF/CNPJ</Label>
+                <MaskedInput
+                  mask="cpf_cnpj"
+                  value={formData.cnpj_cpf}
+                  onChange={(value, isValid) => {
+                    setFormData({ ...formData, cnpj_cpf: value });
+                    setValidationState(prev => ({ ...prev, cnpj_cpf: isValid }));
+                  }}
+                />
+                {!validationState.cnpj_cpf && formData.cnpj_cpf && (
+                  <p className="text-xs text-destructive">CPF/CNPJ inválido</p>
+                )}
+              </div>
+            </div>
+              <div className="space-y-2">
+                <Label>CPF/CNPJ</Label>
                 <Input
                   value={formData.cnpj_cpf}
                   onChange={(e) => setFormData({ ...formData, cnpj_cpf: e.target.value })}
@@ -331,23 +397,75 @@ export default function ClientesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Email</Label>
-                <Input
-                  type="email"
+                <MaskedInput
+                  mask="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="email@exemplo.com"
+                  onChange={(value, isValid) => {
+                    setFormData({ ...formData, email: value });
+                    setValidationState(prev => ({ ...prev, email: isValid }));
+                  }}
                 />
+                {!validationState.email && formData.email && (
+                  <p className="text-xs text-destructive">Email inválido</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Telefone</Label>
-                <Input
+                <MaskedInput
+                  mask="phone"
                   value={formData.telefone}
-                  onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                  placeholder="(00) 00000-0000"
+                  onChange={(value, isValid) => {
+                    setFormData({ ...formData, telefone: value });
+                    setValidationState(prev => ({ ...prev, telefone: isValid }));
+                  }}
                 />
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>CEP</Label>
+                <MaskedInput
+                  mask="cep"
+                  value={formData.cep}
+                  onChange={(value, isValid) => {
+                    setFormData({ ...formData, cep: value });
+                    setValidationState(prev => ({ ...prev, cep: isValid }));
+                  }}
+                  onBlur={handleCepBlur}
+                  disabled={isFetchingCep}
+                />
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label>Endereço</Label>
+                <Input
+                  value={formData.endereco}
+                  onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                  placeholder="Rua, número, bairro"
+                  disabled={isFetchingCep}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Cidade</Label>
+                <Input
+                  value={formData.cidade}
+                  onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                  placeholder="Cidade"
+                  disabled={isFetchingCep}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Estado</Label>
+                <Input
+                  value={formData.estado}
+                  onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                  placeholder="UF"
+                  maxLength={2}
+                  disabled={isFetchingCep}
+                />
+              </div>
+              <div className="space-y-2">
               <Label>Endereço</Label>
               <Input
                 value={formData.endereco}
