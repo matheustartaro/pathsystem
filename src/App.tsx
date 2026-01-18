@@ -45,6 +45,12 @@ const AgendaPage = lazy(() => import("./pages/agenda/AgendaPage"));
 // Orçamentos - lazy loaded
 const OrcamentosPage = lazy(() => import("./pages/orcamentos/OrcamentosPage"));
 
+// Fase 5 - Recursos Avançados
+const TemplatesPage = lazy(() => import("./pages/templates/TemplatesPage"));
+const MetricasPage = lazy(() => import("./pages/metricas/MetricasPage"));
+const TeamManagementPage = lazy(() => import("./pages/admin/TeamManagementPage"));
+const AuditLogPage = lazy(() => import("./pages/admin/AuditLogPage"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -99,6 +105,12 @@ const App = () => (
                 
                 {/* Orçamentos */}
                 <Route path="/orcamentos" element={<ProtectedRoute><OrcamentosPage /></ProtectedRoute>} />
+                
+                {/* Fase 5 - Recursos Avançados */}
+                <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
+                <Route path="/metricas" element={<ProtectedRoute><MetricasPage /></ProtectedRoute>} />
+                <Route path="/admin/equipe" element={<ProtectedRoute><TeamManagementPage /></ProtectedRoute>} />
+                <Route path="/admin/auditoria" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
