@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, memo } from 'react';
 import { AppLayout } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Users, Search, UserCheck, Pencil, Trash2, Phone, Mail, MapPin, Filter, Loader2 } from 'lucide-react';
+import { Plus, Users, Search, UserCheck, Pencil, Trash2, Phone, Mail, MapPin, Filter, Loader2, KeyRound } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useResponsaveis, Responsavel } from '@/hooks/useResponsaveis';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -16,6 +16,7 @@ import { MaskedInput } from '@/components/ui/masked-input';
 import { PaginationControls, usePagination } from '@/components/ui/pagination-controls';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { exportHelpers } from '@/lib/export-utils';
+import ClientTokensDialog from '@/components/clientes/ClientTokensDialog';
 
 const ORIGENS = ['Instagram', 'Facebook', 'Google', 'Indicação', 'WhatsApp', 'Outro'];
 
@@ -26,6 +27,7 @@ export default function ClientesPage() {
   const [cidadeFilter, setCidadeFilter] = useState<string>('todos');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Responsavel | null>(null);
+  const [tokenDialogClient, setTokenDialogClient] = useState<Responsavel | null>(null);
   const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -334,11 +336,14 @@ export default function ClientesPage() {
                             ) : '-'}
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
-                              <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(cliente)}>
+                            <div className="flex gap-1">
+                              <Button size="icon" variant="ghost" onClick={() => handleOpenDialog(cliente)} title="Editar">
                                 <Pencil className="h-4 w-4" />
                               </Button>
-                              <Button size="icon" variant="ghost" onClick={() => handleDelete(cliente.id)}>
+                              <Button size="icon" variant="ghost" onClick={() => setTokenDialogClient(cliente)} title="Tokens de Acesso">
+                                <KeyRound className="h-4 w-4 text-primary" />
+                              </Button>
+                              <Button size="icon" variant="ghost" onClick={() => handleDelete(cliente.id)} title="Excluir">
                                 <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>
@@ -545,6 +550,12 @@ export default function ClientesPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ClientTokensDialog
+        open={!!tokenDialogClient}
+        onOpenChange={(open) => !open && setTokenDialogClient(null)}
+        client={tokenDialogClient}
+      />
     </AppLayout>
   );
 }

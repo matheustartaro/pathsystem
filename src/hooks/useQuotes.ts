@@ -236,6 +236,88 @@ export function useQuotes() {
     },
   });
 
+  // Convert quote to project
+  const convertToProject = async (quoteId: string): Promise<string> => {
+    const quote = quotes.find(q => q.id === quoteId);
+    if (!quote) throw new Error('Orçamento não encontrado');
+    if (quote.status !== 'aprovado') throw new Error('Apenas orçamentos aprovados podem ser convertidos');
+    if (quote.converted_project_id) throw new Error('Orçamento já foi convertido em projeto');
+
+    // Create project
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+
+    const { data: project, error: projectError } = await supabase
+      .from('projects')
+      .insert({
+        nome: quote.titulo,
+        cliente: quote.client?.nome || 'Cliente',
+        client_id: quote.client_id,
+        descricao: quote.descricao,
+        data_inicio: startDate.toISOString().split('T')[0],
+        data_fim: endDate.toISOString().split('T')[0],
+        valor: quote.valor_total,
+        status: 'pendente',
+        progresso: 0,
+      })
+      .select()
+      .single();
+
+    if (projectError) throw projectError;
+
+    // Copy items to order_items
+    if (quote.items && quote.items.length > 0) {
+      const orderItems = quote.items.map(item => ({
+        project_id: project.id,
+        item_type: item.item_type === 'servico' ? 'service' : 'product',
+        service_id: item.service_id,
+        product_id: item.product_id,
+        nome: item.nome,
+        quantidade: item.quantidade,
+        preco_unitario: item.preco_unitario,
+        desconto: item.desconto,
+        total: item.total,
+        is_manual: !item.service_id && !item.product_id,
+      }));
+
+      await supabase.from('order_items').insert(orderItems);
+    }
+
+    // Update quote with project reference
+    await supabase
+      .from('quotes')
+      .update({ converted_project_id: project.id })
+      .eq('id', quoteId);
+
+    // Invalidate queries
+    queryClient.invalidateQueries({ queryKey: ['quotes'] });
+    queryClient.invalidateQueries({ queryKey: ['projects'] });
+
+    toast.success('Orçamento convertido em projeto!');
+    return project.id;
+  };
+
+  // Approve quote (for portal)
+  const approveQuote = async (quoteId: string): Promise<void> => {
+    const { error } = await supabase
+      .from('quotes')
+      .update({ status: 'aprovado' })
+      .eq('id', quoteId);
+
+    if (error) throw error;
+
+    // Log activity
+    await supabase.from('project_activities').insert({
+      project_id: quoteId, // Using quote ID as reference
+      tipo: 'aprovacao',
+      descricao: 'Orçamento aprovado pelo cliente via portal',
+    });
+
+    queryClient.invalidateQueries({ queryKey: ['quotes'] });
+    toast.success('Orçamento aprovado!');
+  };
+
   return {
     quotes,
     isLoading,
@@ -249,5 +331,7 @@ export function useQuotes() {
       updateItemMutation.mutateAsync({ id, updates }),
     deleteItem: deleteItemMutation.mutateAsync,
     getQuoteById: (id: string) => quotes.find(q => q.id === id),
+    convertToProject,
+    approveQuote,
   };
 }

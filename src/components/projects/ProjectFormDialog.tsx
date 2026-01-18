@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { format, addDays } from 'date-fns';
-import { CalendarIcon, FileText, Calendar as CalendarIconLucide, Plus, Loader2 } from 'lucide-react';
+import { CalendarIcon, FileText, Calendar as CalendarIconLucide, Plus, Loader2, LayoutTemplate } from 'lucide-react';
 import { Project, ProjectStatus } from '@/types/project';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,9 +29,11 @@ import { cn } from '@/lib/utils';
 import { ptBR } from 'date-fns/locale';
 import { useStatusCategories } from '@/hooks/useStatusCategories';
 import { useResponsaveis } from '@/hooks/useResponsaveis';
+import { useProjectTemplates } from '@/hooks/useProjectTemplates';
 import { OrderItemsSection, OrderItemInput } from './OrderItemsSection';
 import { ClientFormDialog } from './ClientFormDialog';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 interface ProjectFormDialogProps {
   open: boolean;
@@ -50,12 +52,14 @@ export function ProjectFormDialog({
 }: ProjectFormDialogProps) {
   const { categories } = useStatusCategories();
   const { responsaveis, addResponsavel } = useResponsaveis();
+  const { templates } = useProjectTemplates();
   const [orderItems, setOrderItems] = useState<OrderItemInput[]>([]);
   const [activeTab, setActiveTab] = useState('dados');
   const [clientDialogOpen, setClientDialogOpen] = useState(false);
   const [isAddingClient, setIsAddingClient] = useState(false);
   const [newClientName, setNewClientName] = useState('');
   const [isCreatingClient, setIsCreatingClient] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   
   // Memoize filtered lists to prevent infinite loops
   const clientes = useMemo(
@@ -251,9 +255,70 @@ export function ProjectFormDialog({
     onOpenChange(false);
   };
 
+  // Handle template selection
+  const handleTemplateSelect = (templateId: string) => {
+    if (templateId === 'none') {
+      setSelectedTemplateId(null);
+      return;
+    }
+    const template = templates.find(t => t.id === templateId);
+    if (!template) return;
+
+    setSelectedTemplateId(templateId);
+    if (!nome) setNome(template.nome);
+    if (!descricao && template.descricao) setDescricao(template.descricao);
+    if (template.duracao_dias) {
+      setPrazoDias(template.duracao_dias);
+      setUsePrazoDias(true);
+    }
+
+    // Add template items
+    if (template.items && template.items.length > 0) {
+      const templateItems: OrderItemInput[] = template.items.map(item => ({
+        type: (item.item_type === 'service' ? 'service' : 'product') as 'service' | 'product',
+        itemId: item.service_id || item.product_id || crypto.randomUUID(),
+        nome: item.nome || item.service?.nome || item.product?.nome || '',
+        quantidade: item.quantidade || 1,
+        preco_unitario: item.service?.preco_venda || item.product?.preco_venda || 0,
+        desconto: 0,
+        total: (item.quantidade || 1) * (item.service?.preco_venda || item.product?.preco_venda || 0),
+        isManual: item.is_manual || false,
+      }));
+      setOrderItems(prev => [...prev, ...templateItems]);
+    }
+
+    toast.success(`Template "${template.nome}" aplicado!`);
+  };
+
   // Render the basic project data form
   const renderDadosSection = () => (
     <div className="space-y-5">
+      {/* Template Selector - Only for new projects */}
+      {!isEditing && templates.length > 0 && (
+        <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 space-y-2">
+          <div className="flex items-center gap-2">
+            <LayoutTemplate className="w-4 h-4 text-primary" />
+            <Label className="font-medium">Usar Template</Label>
+          </div>
+          <Select value={selectedTemplateId || 'none'} onValueChange={handleTemplateSelect}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecionar template (opcional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Sem template</SelectItem>
+              {templates.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  <div className="flex items-center gap-2">
+                    {t.nome}
+                    {t.categoria && <Badge variant="secondary" className="text-xs">{t.categoria}</Badge>}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {/* Nome do Projeto */}
       <div className="space-y-2">
         <Label htmlFor="nome">Nome do Projeto *</Label>

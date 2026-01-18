@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Plus, Search, FileText, Send, Check, X, Clock, ArrowRight, Trash2, Edit } from 'lucide-react';
+import { Plus, Search, FileText, Send, Check, X, Clock, ArrowRight, Trash2, Edit, Download, Loader2 } from 'lucide-react';
 import { AppLayout } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +30,9 @@ import { useQuotes, Quote } from '@/hooks/useQuotes';
 import { QuoteFormDialog } from '@/components/orcamentos/QuoteFormDialog';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { exportHelpers } from '@/lib/export-utils';
+import { generateQuotePDF } from '@/lib/pdf-utils';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   rascunho: { label: 'Rascunho', color: 'bg-muted text-muted-foreground', icon: FileText },
@@ -40,11 +43,13 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.E
 };
 
 function OrcamentosPage() {
-  const { quotes, isLoading, deleteQuote } = useQuotes();
+  const navigate = useNavigate();
+  const { quotes, isLoading, deleteQuote, convertToProject } = useQuotes();
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [deleteQuoteId, setDeleteQuoteId] = useState<string | null>(null);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
 
   const filteredQuotes = useMemo(() => 
     quotes.filter(q =>
@@ -80,6 +85,33 @@ function OrcamentosPage() {
   const handleExportExcel = useCallback(() => {
     exportHelpers.exportQuotes(filteredQuotes as unknown as Record<string, unknown>[], 'excel');
   }, [filteredQuotes]);
+
+  const handleDownloadQuotePDF = useCallback((quote: Quote) => {
+    generateQuotePDF({
+      numero: quote.numero,
+      titulo: quote.titulo,
+      descricao: quote.descricao,
+      validade: quote.validade,
+      valor_total: quote.valor_total,
+      desconto_total: quote.desconto_total,
+      observacoes: quote.observacoes,
+      termos_condicoes: quote.termos_condicoes,
+      items: quote.items,
+      client: quote.client ? { nome: quote.client.nome } : null,
+    });
+  }, []);
+
+  const handleConvertToProject = useCallback(async (quoteId: string) => {
+    setConvertingId(quoteId);
+    try {
+      const projectId = await convertToProject(quoteId);
+      navigate(`/projetos/${projectId}`);
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setConvertingId(null);
+    }
+  }, [convertToProject, navigate]);
 
   const formatCurrency = useCallback((value: number) => 
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value), []);
@@ -219,16 +251,31 @@ function OrcamentosPage() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleEdit(quote)}
+                              title="Editar"
                             >
                               <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDownloadQuotePDF(quote)}
+                              title="Baixar PDF"
+                            >
+                              <Download className="w-4 h-4" />
                             </Button>
                             {quote.status === 'aprovado' && !quote.converted_project_id && (
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 title="Converter em projeto"
+                                onClick={() => handleConvertToProject(quote.id)}
+                                disabled={convertingId === quote.id}
                               >
-                                <ArrowRight className="w-4 h-4" />
+                                {convertingId === quote.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <ArrowRight className="w-4 h-4 text-green-500" />
+                                )}
                               </Button>
                             )}
                             <Button
