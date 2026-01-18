@@ -359,37 +359,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Products Low Stock Alert */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Estoque Baixo</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {products.filter(p => p.estoque_atual <= p.estoque_minimo && p.ativo).length > 0 ? (
-                  products
-                    .filter(p => p.estoque_atual <= p.estoque_minimo && p.ativo)
-                    .slice(0, 5)
-                    .map(product => (
-                      <div key={product.id} className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground truncate max-w-[140px]">{product.nome}</span>
-                        <span className={`font-semibold ${product.estoque_atual === 0 ? 'text-destructive' : 'text-yellow-600'}`}>
-                          {formatNumber(product.estoque_atual, product.estoque_atual % 1 === 0 ? 0 : 2)} {product.unidade || 'un'}
-                        </span>
-                      </div>
-                    ))
-                ) : (
-                  <div className="text-center text-sm text-muted-foreground py-4">
-                    <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p>Nenhum produto com estoque baixo</p>
-                  </div>
-                )}
-                {products.filter(p => p.estoque_atual <= p.estoque_minimo && p.ativo).length > 5 && (
-                  <Button variant="link" size="sm" className="w-full" onClick={() => navigate('/catalogo/estoque')}>
-                    Ver todos ({products.filter(p => p.estoque_atual <= p.estoque_minimo && p.ativo).length})
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            {/* Empty space or other content can go here */}
           </div>
         </div>
       </div>

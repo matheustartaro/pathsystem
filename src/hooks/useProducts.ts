@@ -7,8 +7,6 @@ export interface Product {
   descricao: string | null;
   custo: number;
   preco_venda: number;
-  estoque_atual: number;
-  estoque_minimo: number;
   unidade: string | null;
   category_id: string | null;
   supplier_id: string | null;

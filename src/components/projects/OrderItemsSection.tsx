@@ -167,8 +167,6 @@ export function OrderItemsSection({ items, onChange }: OrderItemsSectionProps) {
           category_id: null,
           supplier_id: null,
           ativo: true,
-          estoque_atual: 0,
-          estoque_minimo: 0,
           markup: null,
         });
         
