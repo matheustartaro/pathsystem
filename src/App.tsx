@@ -50,6 +50,7 @@ const TemplatesPage = lazy(() => import("./pages/templates/TemplatesPage"));
 const MetricasPage = lazy(() => import("./pages/metricas/MetricasPage"));
 const TeamManagementPage = lazy(() => import("./pages/admin/TeamManagementPage"));
 const AuditLogPage = lazy(() => import("./pages/admin/AuditLogPage"));
+const ClientPortalPage = lazy(() => import("./pages/portal/ClientPortalPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,6 +76,7 @@ const App = () => (
             <Suspense fallback={<PageLoading />}>
               <Routes>
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/portal" element={<ClientPortalPage />} />
                 
                 {/* Protected Routes */}
                 <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
