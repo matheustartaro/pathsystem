@@ -370,6 +370,145 @@ export type Database = {
         }
         Relationships: []
       }
+      project_activities: {
+        Row: {
+          created_at: string
+          descricao: string
+          id: string
+          metadata: Json | null
+          project_id: string
+          tipo: string
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          descricao: string
+          id?: string
+          metadata?: Json | null
+          project_id: string
+          tipo: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          descricao?: string
+          id?: string
+          metadata?: Json | null
+          project_id?: string
+          tipo?: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_activities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_comments: {
+        Row: {
+          conteudo: string
+          created_at: string
+          id: string
+          mencoes: string[] | null
+          parent_id: string | null
+          project_id: string
+          updated_at: string
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          conteudo: string
+          created_at?: string
+          id?: string
+          mencoes?: string[] | null
+          parent_id?: string | null
+          project_id: string
+          updated_at?: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          conteudo?: string
+          created_at?: string
+          id?: string
+          mencoes?: string[] | null
+          parent_id?: string | null
+          project_id?: string
+          updated_at?: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "project_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_comments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_files: {
+        Row: {
+          categoria: string
+          created_at: string
+          id: string
+          nome: string
+          nome_original: string
+          project_id: string
+          storage_path: string
+          tamanho: number
+          tipo: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          categoria?: string
+          created_at?: string
+          id?: string
+          nome: string
+          nome_original: string
+          project_id: string
+          storage_path: string
+          tamanho: number
+          tipo: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          nome_original?: string
+          project_id?: string
+          storage_path?: string
+          tamanho?: number
+          tipo?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           client_id: string | null
@@ -444,6 +583,142 @@ export type Database = {
             columns: ["responsavel_id"]
             isOneToOne: false
             referencedRelation: "responsaveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_items: {
+        Row: {
+          created_at: string
+          desconto: number
+          descricao: string | null
+          id: string
+          item_type: string
+          nome: string
+          preco_unitario: number
+          product_id: string | null
+          quantidade: number
+          quote_id: string
+          service_id: string | null
+          total: number
+        }
+        Insert: {
+          created_at?: string
+          desconto?: number
+          descricao?: string | null
+          id?: string
+          item_type?: string
+          nome: string
+          preco_unitario?: number
+          product_id?: string | null
+          quantidade?: number
+          quote_id: string
+          service_id?: string | null
+          total?: number
+        }
+        Update: {
+          created_at?: string
+          desconto?: number
+          descricao?: string | null
+          id?: string
+          item_type?: string
+          nome?: string
+          preco_unitario?: number
+          product_id?: string | null
+          quantidade?: number
+          quote_id?: string
+          service_id?: string | null
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          client_id: string | null
+          converted_project_id: string | null
+          created_at: string
+          created_by: string | null
+          desconto_total: number
+          descricao: string | null
+          id: string
+          numero: string
+          observacoes: string | null
+          status: string
+          termos_condicoes: string | null
+          titulo: string
+          updated_at: string
+          validade: string
+          valor_total: number
+        }
+        Insert: {
+          client_id?: string | null
+          converted_project_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          desconto_total?: number
+          descricao?: string | null
+          id?: string
+          numero: string
+          observacoes?: string | null
+          status?: string
+          termos_condicoes?: string | null
+          titulo: string
+          updated_at?: string
+          validade: string
+          valor_total?: number
+        }
+        Update: {
+          client_id?: string | null
+          converted_project_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          desconto_total?: number
+          descricao?: string | null
+          id?: string
+          numero?: string
+          observacoes?: string | null
+          status?: string
+          termos_condicoes?: string | null
+          titulo?: string
+          updated_at?: string
+          validade?: string
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "responsaveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_converted_project_id_fkey"
+            columns: ["converted_project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
