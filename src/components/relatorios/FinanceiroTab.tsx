@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFinanceiro } from '@/hooks/useFinanceiro';
+import { ExportDropdown } from '@/components/ui/export-dropdown';
+import { exportHelpers } from '@/lib/export-utils';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -50,17 +52,35 @@ const COLORS = [
   'hsl(25, 95%, 53%)',
 ];
 
-export function FinanceiroTab() {
+function FinanceiroTab() {
   const { transactions, categories } = useFinanceiro();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = useCallback((value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-  };
+  }, []);
 
-  const formatCompact = (value: number) => {
+  const formatCompact = useCallback((value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' }).format(value);
-  };
+  }, []);
+
+  // Filter transactions for selected year
+  const yearTransactions = useMemo(() => {
+    const start = new Date(selectedYear, 0, 1);
+    const end = new Date(selectedYear, 11, 31);
+    return transactions.filter(t => {
+      const date = new Date(t.data_vencimento);
+      return isWithinInterval(date, { start, end });
+    });
+  }, [transactions, selectedYear]);
+
+  const handleExportPDF = useCallback(() => {
+    exportHelpers.exportTransactions(yearTransactions as unknown as Record<string, unknown>[], 'pdf');
+  }, [yearTransactions]);
+
+  const handleExportExcel = useCallback(() => {
+    exportHelpers.exportTransactions(yearTransactions as unknown as Record<string, unknown>[], 'excel');
+  }, [yearTransactions]);
 
   const availableYears = useMemo(() => {
     const years = new Set<number>();
@@ -158,20 +178,27 @@ export function FinanceiroTab() {
   }, [transactions, categories, selectedYear]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" role="region" aria-label="Relatório Financeiro">
       {/* Filter */}
-      <div className="flex items-center gap-2">
-        <Filter className="h-4 w-4 text-muted-foreground" />
-        <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
-          <SelectTrigger className="w-[120px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {availableYears.map(year => (
-              <SelectItem key={year} value={String(year)}>{year}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
+            <SelectTrigger className="w-[120px]" aria-label="Selecionar ano">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map(year => (
+                <SelectItem key={year} value={String(year)}>{year}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <ExportDropdown
+          onExportPDF={handleExportPDF}
+          onExportExcel={handleExportExcel}
+          disabled={yearTransactions.length === 0}
+        />
       </div>
 
       {/* Summary Cards */}
@@ -380,3 +407,5 @@ export function FinanceiroTab() {
     </div>
   );
 }
+
+export { FinanceiroTab };

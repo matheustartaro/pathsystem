@@ -1,3 +1,4 @@
+import React, { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,83 +8,101 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SidebarProvider } from "@/contexts/SidebarContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { GlobalSearchDialog } from "@/components/search/GlobalSearchDialog";
-import Dashboard from "./pages/Dashboard";
-import GanttPage from "./pages/GanttPage";
-import ProjectsPage from "./pages/ProjectsPage";
-import ProjectDetailPage from "./pages/ProjectDetailPage";
-import SettingsPage from "./pages/SettingsPage";
+import { SkipLink } from "@/components/ui/skip-link";
+import { PageLoading } from "@/components/ui/loading-spinner";
+
+// Eager load critical pages
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/Dashboard";
 
-// Financeiro
-import FluxoCaixaPage from "./pages/financeiro/FluxoCaixaPage";
-import ContasPage from "./pages/financeiro/ContasPage";
-import RelatoriosFinanceiroPage from "./pages/financeiro/RelatoriosPage";
+// Lazy load other pages for performance
+const GanttPage = lazy(() => import("./pages/GanttPage"));
+const ProjectsPage = lazy(() => import("./pages/ProjectsPage"));
+const ProjectDetailPage = lazy(() => import("./pages/ProjectDetailPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 
-// Relatórios
-import RelatoriosPage from "./pages/relatorios/RelatoriosPage";
+// Financeiro - lazy loaded
+const FluxoCaixaPage = lazy(() => import("./pages/financeiro/FluxoCaixaPage"));
+const ContasPage = lazy(() => import("./pages/financeiro/ContasPage"));
+const RelatoriosFinanceiroPage = lazy(() => import("./pages/financeiro/RelatoriosPage"));
 
-// Catálogo
-import ProdutosPage from "./pages/catalogo/ProdutosPage";
-import ServicosPage from "./pages/catalogo/ServicosPage";
-import PrecosPage from "./pages/catalogo/PrecosPage";
+// Relatórios - lazy loaded
+const RelatoriosPage = lazy(() => import("./pages/relatorios/RelatoriosPage"));
 
-// Clientes
-import ClientesPage from "./pages/clientes/ClientesPage";
-import NovoClientePage from "./pages/clientes/NovoClientePage";
+// Catálogo - lazy loaded
+const ProdutosPage = lazy(() => import("./pages/catalogo/ProdutosPage"));
+const ServicosPage = lazy(() => import("./pages/catalogo/ServicosPage"));
+const PrecosPage = lazy(() => import("./pages/catalogo/PrecosPage"));
 
-// Agenda
-import AgendaPage from "./pages/agenda/AgendaPage";
+// Clientes - lazy loaded
+const ClientesPage = lazy(() => import("./pages/clientes/ClientesPage"));
+const NovoClientePage = lazy(() => import("./pages/clientes/NovoClientePage"));
 
-// Orçamentos
-import OrcamentosPage from "./pages/orcamentos/OrcamentosPage";
+// Agenda - lazy loaded
+const AgendaPage = lazy(() => import("./pages/agenda/AgendaPage"));
 
-const queryClient = new QueryClient();
+// Orçamentos - lazy loaded
+const OrcamentosPage = lazy(() => import("./pages/orcamentos/OrcamentosPage"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <SidebarProvider>
         <TooltipProvider>
+          <SkipLink />
           <Toaster />
           <Sonner />
           <BrowserRouter>
             <GlobalSearchDialog />
-            <Routes>
-              <Route path="/auth" element={<AuthPage />} />
-              
-              {/* Protected Routes */}
-              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/gantt" element={<ProtectedRoute><GanttPage /></ProtectedRoute>} />
-              <Route path="/projetos" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
-              <Route path="/projetos/:id" element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} />
-              <Route path="/configuracoes" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-              
-              {/* Financeiro */}
-              <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><FluxoCaixaPage /></ProtectedRoute>} />
-              <Route path="/financeiro/contas" element={<ProtectedRoute><ContasPage /></ProtectedRoute>} />
-              <Route path="/financeiro/relatorios" element={<ProtectedRoute><RelatoriosFinanceiroPage /></ProtectedRoute>} />
-              
-              {/* Relatórios */}
-              <Route path="/relatorios" element={<ProtectedRoute><RelatoriosPage /></ProtectedRoute>} />
-              
-              {/* Catálogo */}
-              <Route path="/catalogo/produtos" element={<ProtectedRoute><ProdutosPage /></ProtectedRoute>} />
-              <Route path="/catalogo/servicos" element={<ProtectedRoute><ServicosPage /></ProtectedRoute>} />
-              <Route path="/catalogo/precos" element={<ProtectedRoute><PrecosPage /></ProtectedRoute>} />
-              
-              {/* Clientes */}
-              <Route path="/clientes" element={<ProtectedRoute><ClientesPage /></ProtectedRoute>} />
-              <Route path="/clientes/novo" element={<ProtectedRoute><NovoClientePage /></ProtectedRoute>} />
-              
-              {/* Agenda */}
-              <Route path="/agenda" element={<ProtectedRoute><AgendaPage /></ProtectedRoute>} />
-              
-              {/* Orçamentos */}
-              <Route path="/orcamentos" element={<ProtectedRoute><OrcamentosPage /></ProtectedRoute>} />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <Suspense fallback={<PageLoading />}>
+              <Routes>
+                <Route path="/auth" element={<AuthPage />} />
+                
+                {/* Protected Routes */}
+                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/gantt" element={<ProtectedRoute><GanttPage /></ProtectedRoute>} />
+                <Route path="/projetos" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
+                <Route path="/projetos/:id" element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} />
+                <Route path="/configuracoes" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                
+                {/* Financeiro */}
+                <Route path="/financeiro/fluxo-caixa" element={<ProtectedRoute><FluxoCaixaPage /></ProtectedRoute>} />
+                <Route path="/financeiro/contas" element={<ProtectedRoute><ContasPage /></ProtectedRoute>} />
+                <Route path="/financeiro/relatorios" element={<ProtectedRoute><RelatoriosFinanceiroPage /></ProtectedRoute>} />
+                
+                {/* Relatórios */}
+                <Route path="/relatorios" element={<ProtectedRoute><RelatoriosPage /></ProtectedRoute>} />
+                
+                {/* Catálogo */}
+                <Route path="/catalogo/produtos" element={<ProtectedRoute><ProdutosPage /></ProtectedRoute>} />
+                <Route path="/catalogo/servicos" element={<ProtectedRoute><ServicosPage /></ProtectedRoute>} />
+                <Route path="/catalogo/precos" element={<ProtectedRoute><PrecosPage /></ProtectedRoute>} />
+                
+                {/* Clientes */}
+                <Route path="/clientes" element={<ProtectedRoute><ClientesPage /></ProtectedRoute>} />
+                <Route path="/clientes/novo" element={<ProtectedRoute><NovoClientePage /></ProtectedRoute>} />
+                
+                {/* Agenda */}
+                <Route path="/agenda" element={<ProtectedRoute><AgendaPage /></ProtectedRoute>} />
+                
+                {/* Orçamentos */}
+                <Route path="/orcamentos" element={<ProtectedRoute><OrcamentosPage /></ProtectedRoute>} />
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </SidebarProvider>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { Plus, Search, Filter, LayoutGrid, List, User, ArrowUpDown } from 'lucide-react';
 import { AppLayout } from '@/components/layout';
 import { ProjectCard, ProjectListItem } from '@/components/projects';
@@ -21,6 +21,8 @@ import {
 import { Project, ProjectStatus, Task } from '@/types/project';
 import { useToast } from '@/hooks/use-toast';
 import { useStatusCategories } from '@/hooks/useStatusCategories';
+import { ExportDropdown } from '@/components/ui/export-dropdown';
+import { exportHelpers } from '@/lib/export-utils';
 
 const ProjectsPage = () => {
   const { projects, isLoading, addProject, updateProject, deleteProject } = useProjects();
@@ -335,10 +337,17 @@ const ProjectsPage = () => {
               {filteredProjects.length} projeto{filteredProjects.length !== 1 ? 's' : ''} encontrado{filteredProjects.length !== 1 ? 's' : ''}
             </p>
           </div>
-          <Button className="gap-2" onClick={handleAddProject}>
-            <Plus className="w-4 h-4" />
-            Novo Projeto
-          </Button>
+          <div className="flex gap-2">
+            <ExportDropdown
+              onExportPDF={() => exportHelpers.exportProjects(filteredProjects as unknown as Record<string, unknown>[], 'pdf')}
+              onExportExcel={() => exportHelpers.exportProjects(filteredProjects as unknown as Record<string, unknown>[], 'excel')}
+              disabled={filteredProjects.length === 0}
+            />
+            <Button className="gap-2" onClick={handleAddProject} aria-label="Adicionar novo projeto">
+              <Plus className="w-4 h-4" aria-hidden="true" />
+              Novo Projeto
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}

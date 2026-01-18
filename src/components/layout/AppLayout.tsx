@@ -25,7 +25,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         locked ? "lg:ml-[280px]" : "lg:ml-20"
       )}>
         <Header />
-        <main className="p-4 lg:p-6">
+        <main id="main-content" className="p-4 lg:p-6" role="main" aria-label="Conteúdo principal">
           {children}
         </main>
       </div>

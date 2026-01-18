@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { AppLayout } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { MaskedInput } from '@/components/ui/masked-input';
 import { PaginationControls, usePagination } from '@/components/ui/pagination-controls';
+import { ExportDropdown } from '@/components/ui/export-dropdown';
+import { exportHelpers } from '@/lib/export-utils';
 
 const ORIGENS = ['Instagram', 'Facebook', 'Google', 'Indicação', 'WhatsApp', 'Outro'];
 
@@ -185,10 +187,17 @@ export default function ClientesPage() {
               {filteredClientes.length} cliente{filteredClientes.length !== 1 ? 's' : ''} encontrado{filteredClientes.length !== 1 ? 's' : ''}
             </p>
           </div>
-          <Button onClick={() => handleOpenDialog()}>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Cliente
-          </Button>
+          <div className="flex gap-2">
+            <ExportDropdown
+              onExportPDF={() => exportHelpers.exportClients(filteredClientes as unknown as Record<string, unknown>[], 'pdf')}
+              onExportExcel={() => exportHelpers.exportClients(filteredClientes as unknown as Record<string, unknown>[], 'excel')}
+              disabled={filteredClientes.length === 0}
+            />
+            <Button onClick={() => handleOpenDialog()} aria-label="Adicionar novo cliente">
+              <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
+              Novo Cliente
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
