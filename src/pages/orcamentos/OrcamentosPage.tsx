@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Plus, Search, FileText, Send, Check, X, Clock, ArrowRight, Trash2, Edit } from 'lucide-react';
@@ -27,6 +27,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useQuotes, Quote } from '@/hooks/useQuotes';
 import { QuoteFormDialog } from '@/components/orcamentos/QuoteFormDialog';
+import { ExportDropdown } from '@/components/ui/export-dropdown';
+import { exportHelpers } from '@/lib/export-utils';
 import { cn } from '@/lib/utils';
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
@@ -37,41 +39,50 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.E
   expirado: { label: 'Expirado', color: 'bg-orange-500/10 text-orange-500', icon: Clock },
 };
 
-export default function OrcamentosPage() {
+function OrcamentosPage() {
   const { quotes, isLoading, deleteQuote } = useQuotes();
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [deleteQuoteId, setDeleteQuoteId] = useState<string | null>(null);
 
-  const filteredQuotes = quotes.filter(q =>
-    q.titulo.toLowerCase().includes(search.toLowerCase()) ||
-    q.numero.toLowerCase().includes(search.toLowerCase()) ||
-    q.client?.nome?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredQuotes = useMemo(() => 
+    quotes.filter(q =>
+      q.titulo.toLowerCase().includes(search.toLowerCase()) ||
+      q.numero.toLowerCase().includes(search.toLowerCase()) ||
+      q.client?.nome?.toLowerCase().includes(search.toLowerCase())
+    ), [quotes, search]);
 
-  const stats = {
+  const stats = useMemo(() => ({
     total: quotes.length,
     rascunho: quotes.filter(q => q.status === 'rascunho').length,
     enviados: quotes.filter(q => q.status === 'enviado').length,
     aprovados: quotes.filter(q => q.status === 'aprovado').length,
     valorTotal: quotes.filter(q => q.status === 'aprovado').reduce((sum, q) => sum + q.valor_total, 0),
-  };
+  }), [quotes]);
 
-  const handleEdit = (quote: Quote) => {
+  const handleEdit = useCallback((quote: Quote) => {
     setEditingQuote(quote);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (deleteQuoteId) {
       await deleteQuote(deleteQuoteId);
       setDeleteQuoteId(null);
     }
-  };
+  }, [deleteQuoteId, deleteQuote]);
 
-  const formatCurrency = (value: number) => 
-    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  const handleExportPDF = useCallback(() => {
+    exportHelpers.exportQuotes(filteredQuotes as unknown as Record<string, unknown>[], 'pdf');
+  }, [filteredQuotes]);
+
+  const handleExportExcel = useCallback(() => {
+    exportHelpers.exportQuotes(filteredQuotes as unknown as Record<string, unknown>[], 'excel');
+  }, [filteredQuotes]);
+
+  const formatCurrency = useCallback((value: number) => 
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value), []);
 
   return (
     <AppLayout>
@@ -82,10 +93,17 @@ export default function OrcamentosPage() {
             <h1 className="text-2xl font-bold text-foreground">Orçamentos</h1>
             <p className="text-muted-foreground">Gerencie propostas e orçamentos para clientes</p>
           </div>
-          <Button onClick={() => { setEditingQuote(null); setDialogOpen(true); }}>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Orçamento
-          </Button>
+          <div className="flex gap-2">
+            <ExportDropdown
+              onExportPDF={handleExportPDF}
+              onExportExcel={handleExportExcel}
+              disabled={filteredQuotes.length === 0}
+            />
+            <Button onClick={() => { setEditingQuote(null); setDialogOpen(true); }}>
+              <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
+              Novo Orçamento
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -140,6 +158,7 @@ export default function OrcamentosPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 max-w-md"
+            aria-label="Buscar orçamentos por título, número ou cliente"
           />
         </div>
 
@@ -257,3 +276,5 @@ export default function OrcamentosPage() {
     </AppLayout>
   );
 }
+
+export default memo(OrcamentosPage);
