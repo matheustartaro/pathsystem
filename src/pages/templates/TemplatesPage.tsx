@@ -10,7 +10,8 @@ import {
   Package,
   Trash2,
   Edit,
-  Copy
+  Copy,
+  LayoutTemplate
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -124,7 +125,7 @@ function TemplatesPage() {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-          <FileTemplate className="w-16 h-16 text-muted-foreground mb-4" />
+          <LayoutTemplate className="w-16 h-16 text-muted-foreground mb-4" />
           <h1 className="text-2xl font-bold mb-2">Acesso Restrito</h1>
           <p className="text-muted-foreground">
             Você não tem permissão para gerenciar templates.
@@ -156,7 +157,7 @@ function TemplatesPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                <FileTemplate className="w-5 h-5 text-primary" />
+                <LayoutTemplate className="w-5 h-5 text-primary" />
                 <span className="text-2xl font-bold">{templates.length}</span>
               </div>
             </CardContent>
@@ -209,7 +210,7 @@ function TemplatesPage() {
               </div>
             ) : filteredTemplates.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <FileTemplate className="w-12 h-12 text-muted-foreground mb-4" />
+                <LayoutTemplate className="w-12 h-12 text-muted-foreground mb-4" />
                 <h3 className="font-semibold">Nenhum template encontrado</h3>
                 <p className="text-muted-foreground text-sm mt-1">
                   {search ? 'Tente ajustar sua busca' : 'Crie seu primeiro template'}
