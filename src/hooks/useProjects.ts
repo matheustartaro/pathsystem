@@ -165,78 +165,10 @@ async function addProjectToDb(project: Omit<Project, 'id' | 'createdAt' | 'updat
   };
 }
 
-// Process automatic stock deduction for completed projects
-async function processProjectStockDeduction(projectId: string): Promise<void> {
-  try {
-    // Check if stock was already deducted for this project
-    const { data: existingMovements } = await supabase
-      .from('stock_movements')
-      .select('id')
-      .eq('project_id', projectId)
-      .limit(1);
-
-    if (existingMovements && existingMovements.length > 0) {
-      console.log('Stock already deducted for project:', projectId);
-      return;
-    }
-
-    // Get order items for the project
-    const { data: orderItems } = await supabase
-      .from('order_items')
-      .select('product_id, quantidade')
-      .eq('project_id', projectId)
-      .not('product_id', 'is', null);
-
-    if (!orderItems?.length) {
-      console.log('No products to deduct for project:', projectId);
-      return;
-    }
-
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Create stock movements for each product
-    for (const item of orderItems) {
-      if (!item.product_id) continue;
-
-      await supabase.from('stock_movements').insert({
-        product_id: item.product_id,
-        project_id: projectId,
-        tipo: 'saida',
-        quantidade: item.quantidade,
-        motivo: 'Baixa automática - Pedido concluído',
-        created_by: user?.id,
-      });
-
-      // Update product stock
-      const { data: product } = await supabase
-        .from('products')
-        .select('estoque_atual')
-        .eq('id', item.product_id)
-        .single();
-
-      if (product) {
-        const newStock = Math.max(0, product.estoque_atual - item.quantidade);
-        await supabase
-          .from('products')
-          .update({ estoque_atual: newStock })
-          .eq('id', item.product_id);
-      }
-    }
-
-    toast.success('Estoque baixado automaticamente');
-  } catch (error) {
-    console.error('Error processing stock deduction:', error);
-  }
-}
+// Stock deduction removed - no longer needed
 
 // Update project in Supabase
-async function updateProjectInDb(id: string, updates: Partial<Project>, currentProjects: Project[]): Promise<{ shouldDeductStock: boolean }> {
-  const currentProject = currentProjects.find(p => p.id === id);
-  const shouldDeductStock = updates.status !== undefined && 
-    ['concluido', 'entregue'].includes(updates.status) &&
-    currentProject && 
-    !['concluido', 'entregue'].includes(currentProject.status);
+async function updateProjectInDb(id: string, updates: Partial<Project>, currentProjects: Project[]): Promise<void> {
   const projectUpdates: Record<string, unknown> = {};
   if (updates.nome !== undefined) projectUpdates.nome = updates.nome;
   if (updates.descricao !== undefined) projectUpdates.descricao = updates.descricao;
@@ -336,7 +268,7 @@ async function updateProjectInDb(id: string, updates: Partial<Project>, currentP
     }
   }
 
-  return { shouldDeductStock };
+  
 }
 
 // Delete project from Supabase
@@ -372,8 +304,8 @@ export function useProjects() {
   // Mutation for updating project - optimistic update
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Project> }) => {
-      const result = await updateProjectInDb(id, updates, projects);
-      return { id, ...result };
+      await updateProjectInDb(id, updates, projects);
+      return { id };
     },
     onMutate: async ({ id, updates }) => {
       // Cancel any outgoing refetches
@@ -389,13 +321,9 @@ export function useProjects() {
 
       return { previousProjects };
     },
-    onSuccess: async (result) => {
-      // Process stock deduction if project was just completed
-      if (result.shouldDeductStock) {
-        await processProjectStockDeduction(result.id);
-        queryClient.invalidateQueries({ queryKey: ['stock_movements'] });
-        queryClient.invalidateQueries({ queryKey: ['products'] });
-      }
+    onSuccess: async () => {
+      // Invalidate products cache after project update
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: (_err, _variables, context) => {
       // Rollback on error
