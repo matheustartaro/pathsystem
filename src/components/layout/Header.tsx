@@ -1,14 +1,17 @@
-import { Menu, Bell, Search } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { MobileNav } from './MobileNav';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { useGlobalSearch } from '@/hooks/useGlobalSearch';
 
 interface HeaderProps {
   onMenuClick?: () => void;
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
+  const { open } = useGlobalSearch();
+
   return (
     <header className="sticky top-0 z-30 h-16 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="flex items-center justify-between h-full px-4 lg:px-6">
@@ -26,15 +29,19 @@ export function Header({ onMenuClick }: HeaderProps) {
           </Sheet>
         </div>
 
-        {/* Search */}
+        {/* Search Button */}
         <div className="hidden md:flex flex-1 max-w-md">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar projetos..."
-              className="pl-10 bg-secondary/50 border-transparent focus:border-input"
-            />
-          </div>
+          <Button
+            variant="outline"
+            onClick={open}
+            className="w-full justify-start text-muted-foreground bg-secondary/50 border-transparent hover:border-input"
+          >
+            <Search className="mr-2 h-4 w-4" />
+            <span className="flex-1 text-left">Buscar...</span>
+            <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </Button>
         </div>
 
         {/* Logo for mobile */}
@@ -48,10 +55,17 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-status-error rounded-full" />
+          {/* Mobile search button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden text-muted-foreground hover:text-foreground"
+            onClick={open}
+          >
+            <Search className="w-5 h-5" />
           </Button>
+          
+          <NotificationCenter />
         </div>
       </div>
     </header>
