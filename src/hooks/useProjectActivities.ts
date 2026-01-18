@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import type { Json } from '@/integrations/supabase/types';
 
 export interface ProjectActivity {
   id: string;
@@ -45,7 +46,7 @@ async function createActivity(
       project_id: projectId,
       tipo,
       descricao,
-      metadata: metadata || null,
+      metadata: (metadata as Json) || null,
       user_id: userId,
       user_name: userName,
     }])
