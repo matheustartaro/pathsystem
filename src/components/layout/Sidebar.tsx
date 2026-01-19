@@ -9,7 +9,6 @@ import {
   Settings, 
   Moon, 
   Sun, 
-  Database,
   Banknote,
   BoxIcon,
   UsersRound,
@@ -25,12 +24,7 @@ import {
   PanelLeftClose,
   PanelLeft,
   BarChart3,
-  FileText,
-  LayoutTemplate,
-  TrendingUp,
-  Shield,
-  Users,
-  ClipboardList
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/useTheme';
@@ -114,27 +108,6 @@ const navItems: NavItem[] = [
     label: 'Relatórios',
     description: 'Análises do negócio',
     href: '/relatorios' 
-  },
-  { 
-    icon: LayoutTemplate, 
-    label: 'Templates',
-    description: 'Modelos de projeto',
-    href: '/templates' 
-  },
-  { 
-    icon: TrendingUp, 
-    label: 'Métricas',
-    description: 'Produtividade',
-    href: '/metricas' 
-  },
-  { 
-    icon: Shield, 
-    label: 'Admin',
-    description: 'Gestão e controle',
-    subItems: [
-      { icon: Users, label: 'Equipe', description: 'Gestão de usuários', href: '/admin/equipe' },
-      { icon: ClipboardList, label: 'Auditoria', description: 'Log de ações', href: '/admin/auditoria' },
-    ]
   },
   { 
     icon: Settings, 
