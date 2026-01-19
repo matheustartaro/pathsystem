@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { 
   Moon, Sun, Bell, Download, Trash2, Plus, Edit2, GripVertical, 
-  Users, AlertTriangle, Settings
+  Users, AlertTriangle, Settings, Shield, ClipboardList
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
@@ -20,6 +20,8 @@ import { SuppliersSection } from '@/components/database/SuppliersSection';
 import { ProductCategoriesSection } from '@/components/database/ProductCategoriesSection';
 import { FinancialCategoriesSection } from '@/components/database/FinancialCategoriesSection';
 import { SystemSettingsSection } from '@/components/database/SystemSettingsSection';
+import { TeamSection } from '@/components/settings/TeamSection';
+import { AuditSection } from '@/components/settings/AuditSection';
 import {
   Dialog,
   DialogContent,
@@ -30,10 +32,12 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast as sonnerToast } from 'sonner';
+import { useUserRole } from '@/hooks/useUserRole';
 
 const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+  const { isAdmin } = useUserRole();
   const { categories, addCategory, updateCategory, deleteCategory, reorderCategories, isLoading } = useStatusCategories();
   const { responsaveis, addResponsavel, updateResponsavel, deleteResponsavel, isLoading: loadingResponsaveis } = useResponsaveis();
   
@@ -216,13 +220,15 @@ const SettingsPage = () => {
         </div>
 
         <Tabs defaultValue="aparencia" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-8' : 'grid-cols-6'}`}>
             <TabsTrigger value="aparencia">Aparência</TabsTrigger>
             <TabsTrigger value="status">Status</TabsTrigger>
             <TabsTrigger value="responsaveis">Responsáveis</TabsTrigger>
             <TabsTrigger value="categorias">Categorias</TabsTrigger>
             <TabsTrigger value="fornecedores">Fornecedores</TabsTrigger>
             <TabsTrigger value="sistema">Sistema</TabsTrigger>
+            {isAdmin && <TabsTrigger value="equipe"><Shield className="w-4 h-4 mr-1" />Equipe</TabsTrigger>}
+            {isAdmin && <TabsTrigger value="auditoria"><ClipboardList className="w-4 h-4 mr-1" />Auditoria</TabsTrigger>}
           </TabsList>
 
           {/* Aparência Tab */}
@@ -420,6 +426,16 @@ const SettingsPage = () => {
 
           {/* Sistema Tab */}
           <TabsContent value="sistema"><SystemSettingsSection /></TabsContent>
+
+          {/* Admin - Equipe Tab */}
+          {isAdmin && (
+            <TabsContent value="equipe"><TeamSection /></TabsContent>
+          )}
+
+          {/* Admin - Auditoria Tab */}
+          {isAdmin && (
+            <TabsContent value="auditoria"><AuditSection /></TabsContent>
+          )}
         </Tabs>
 
         {/* Status Dialog */}
