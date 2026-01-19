@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
@@ -13,7 +12,7 @@ import {
   BoxIcon,
   UsersRound,
   CalendarDays,
-  ChevronDown,
+  ChevronRight,
   LogOut,
   ArrowUpDown,
   Landmark,
@@ -21,28 +20,32 @@ import {
   HandCoins,
   Tags,
   UserRoundPlus,
-  PanelLeftClose,
-  PanelLeft,
   BarChart3,
-  FileText
+  FileText,
+  Menu,
+  HelpCircle,
+  Bell
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSidebarContext } from '@/contexts/SidebarContext';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface SubNavItem {
   icon: LucideIcon;
   label: string;
   href: string;
-  description?: string;
 }
 
 interface NavItem {
   icon: LucideIcon;
   label: string;
-  description?: string;
   href?: string;
   subItems?: SubNavItem[];
 }
@@ -51,68 +54,59 @@ const navItems: NavItem[] = [
   { 
     icon: LayoutGrid, 
     label: 'Dashboard',
-    description: 'Visão geral',
     href: '/'
   },
   { 
     icon: Banknote, 
     label: 'Financeiro',
-    description: 'Receitas e despesas',
     subItems: [
-      { icon: ArrowUpDown, label: 'Fluxo de Caixa', description: 'Movimentações', href: '/financeiro/fluxo-caixa' },
-      { icon: Landmark, label: 'Contas', description: 'Contas bancárias', href: '/financeiro/contas' },
+      { icon: ArrowUpDown, label: 'Fluxo de Caixa', href: '/financeiro/fluxo-caixa' },
+      { icon: Landmark, label: 'Contas', href: '/financeiro/contas' },
     ]
   },
   { 
     icon: Layers, 
     label: 'Projetos',
-    description: 'Gestão de projetos',
     subItems: [
-      { icon: Layers, label: 'Projetos', description: 'Todos os projetos', href: '/projetos' },
-      { icon: CalendarRange, label: 'Cronograma', description: 'Cronograma visual', href: '/gantt' },
+      { icon: Layers, label: 'Projetos', href: '/projetos' },
+      { icon: CalendarRange, label: 'Cronograma', href: '/gantt' },
     ]
   },
   { 
     icon: Boxes, 
     label: 'Catálogo',
-    description: 'Produtos e serviços',
     subItems: [
-      { icon: BoxIcon, label: 'Produtos', description: 'Lista de produtos', href: '/catalogo/produtos' },
-      { icon: HandCoins, label: 'Serviços', description: 'Lista de serviços', href: '/catalogo/servicos' },
-      { icon: Tags, label: 'Tabela de Preços', description: 'Preços e valores', href: '/catalogo/precos' },
+      { icon: BoxIcon, label: 'Produtos', href: '/catalogo/produtos' },
+      { icon: HandCoins, label: 'Serviços', href: '/catalogo/servicos' },
+      { icon: Tags, label: 'Tabela de Preços', href: '/catalogo/precos' },
     ]
   },
   { 
     icon: UsersRound, 
     label: 'Clientes',
-    description: 'Base de clientes',
     subItems: [
-      { icon: UsersRound, label: 'Lista de Clientes', description: 'Todos os clientes', href: '/clientes' },
-      { icon: UserRoundPlus, label: 'Novo Cliente', description: 'Cadastrar cliente', href: '/clientes/novo' },
+      { icon: UsersRound, label: 'Lista de Clientes', href: '/clientes' },
+      { icon: UserRoundPlus, label: 'Novo Cliente', href: '/clientes/novo' },
     ]
   },
   { 
     icon: CalendarDays, 
     label: 'Agenda',
-    description: 'Compromissos',
     href: '/agenda' 
   },
   { 
     icon: FileText, 
     label: 'Orçamentos',
-    description: 'Propostas comerciais',
     href: '/orcamentos' 
   },
   { 
     icon: BarChart3, 
     label: 'Relatórios',
-    description: 'Análises do negócio',
     href: '/relatorios' 
   },
   { 
     icon: Settings, 
     label: 'Configurações',
-    description: 'Preferências e dados',
     href: '/configuracoes' 
   },
 ];
@@ -127,32 +121,13 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onCollapsedChange, locked = false, onLockedChange }: SidebarProps) {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { openMenus, toggleMenu } = useSidebarContext();
-  const timeoutRef = useRef<number | null>(null);
 
-  const handleMouseEnter = () => {
-    if (locked) return;
-    if (timeoutRef.current) {
-      window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    onCollapsedChange(false);
-  };
-
-  const handleMouseLeave = () => {
-    if (locked) return;
-    timeoutRef.current = window.setTimeout(() => {
-      onCollapsedChange(true);
-    }, 150);
-  };
-
-  const toggleLock = () => {
+  const toggleExpand = () => {
     if (onLockedChange) {
       onLockedChange(!locked);
-      if (!locked) {
-        onCollapsedChange(false);
-      }
+      onCollapsedChange(!locked ? false : true);
     }
   };
 
@@ -169,173 +144,310 @@ export function Sidebar({ collapsed, onCollapsedChange, locked = false, onLocked
     return false;
   };
 
+  const isSubItemActive = (href: string): boolean => {
+    return location.pathname === href || location.pathname.startsWith(href);
+  };
+
+  // Get user initials
+  const userInitials = user?.email?.charAt(0).toUpperCase() || 'U';
+
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-200 ease-out hidden lg:flex flex-col',
-        collapsed ? 'w-20' : 'w-[280px]'
+        'fixed left-0 top-0 z-40 h-screen bg-sidebar flex flex-col transition-all duration-300 ease-in-out hidden lg:flex',
+        collapsed ? 'w-[60px]' : 'w-[260px]'
       )}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
-      {/* Logo and Toggle */}
+      {/* Logo Area */}
       <div className={cn(
-        'flex items-center h-16 border-b border-sidebar-border px-4',
-        collapsed ? 'justify-center' : 'justify-between'
+        'flex items-center h-14 px-3',
+        collapsed ? 'justify-center' : 'justify-start'
       )}>
-        {!collapsed && (
-          <Link to="/" className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-2">
+          {collapsed ? (
+            <img 
+              src="/images/icon-jmario.png" 
+              alt="J.Mario" 
+              className="h-7 w-7 object-contain"
+            />
+          ) : (
             <img 
               src="/images/logo-jmario.png" 
               alt="J.Mario" 
-              className="h-8 w-auto"
+              className="h-7 w-auto"
             />
-          </Link>
-        )}
-        {collapsed && (
-          <img 
-            src="/images/icon-jmario.png" 
-            alt="J.Mario" 
-            className="h-8 w-8 object-contain"
-          />
-        )}
-        {!collapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleLock}
-            className="w-8 h-8 text-sidebar-foreground hover:bg-sidebar-accent"
-            title={locked ? 'Desbloquear menu' : 'Travar menu aberto'}
-          >
-            {locked ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
-          </Button>
-        )}
+          )}
+        </Link>
+      </div>
+
+      {/* Menu Toggle Button */}
+      <div className={cn(
+        'flex items-center px-3 py-2',
+        collapsed ? 'justify-center' : 'justify-start'
+      )}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={toggleExpand}
+              className={cn(
+                'flex items-center justify-center rounded-lg transition-colors',
+                'w-9 h-9 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+              )}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" sideOffset={10}>
+            {locked ? 'Recolher menu' : 'Expandir menu'}
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 overflow-y-auto overflow-x-hidden">
-        <ul className="space-y-1">
+      <nav className="flex-1 py-2 px-2 overflow-y-auto overflow-x-hidden">
+        <ul className="space-y-0.5">
           {navItems.map((item) => {
             const isActive = isItemActive(item);
             const isOpen = openMenus.includes(item.label);
-            
-            if (item.subItems && !collapsed) {
-              return (
-                <li key={item.label}>
-                  <Collapsible open={isOpen} onOpenChange={() => toggleMenu(item.label)}>
-                    <CollapsibleTrigger asChild>
-                      <button
-                        className={cn(
-                          'flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150',
-                          isActive
-                            ? 'bg-sidebar-accent text-sidebar-primary font-medium'
-                            : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
-                        )}
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <item.icon className="w-5 h-5 flex-shrink-0" />
-                          <div className="flex flex-col min-w-0 text-left">
-                            <span className="whitespace-nowrap font-semibold text-sm">{item.label}</span>
-                            {item.description && (
-                              <span className="text-xs text-muted-foreground truncate">{item.description}</span>
-                            )}
-                          </div>
-                        </div>
-                        <ChevronDown className={cn(
-                          'w-4 h-4 transition-transform duration-200 flex-shrink-0',
-                          isOpen && 'rotate-180'
-                        )} />
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pl-4 mt-1 space-y-1">
-                      {item.subItems.map((subItem) => {
-                        const subIsActive = location.pathname === subItem.href;
-                        return (
-                          <Link
-                            key={subItem.href}
-                            to={subItem.href}
-                            className={cn(
-                              'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-150',
-                              subIsActive
-                                ? 'bg-sidebar-accent text-sidebar-primary'
-                                : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
-                            )}
-                          >
-                            <subItem.icon className="w-4 h-4 flex-shrink-0" />
-                            <span className="whitespace-nowrap text-sm text-left">{subItem.label}</span>
-                          </Link>
-                        );
-                      })}
-                    </CollapsibleContent>
-                  </Collapsible>
-                </li>
-              );
-            }
+            const hasSubItems = item.subItems && item.subItems.length > 0;
 
-            // Simple link or collapsed menu with subItems
-            if (item.href || collapsed) {
+            // Collapsed state - show only icons
+            if (collapsed) {
               const href = item.href || (item.subItems ? item.subItems[0].href : '/');
               return (
                 <li key={item.label}>
-                  <Link
-                    to={href}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150',
-                      collapsed ? 'justify-center' : '',
-                      isActive
-                        ? 'bg-sidebar-accent text-sidebar-primary'
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
-                    )}
-                    title={collapsed ? item.label : undefined}
-                  >
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
-                    {!collapsed && (
-                      <div className="flex flex-col min-w-0 text-left">
-                        <span className="whitespace-nowrap font-semibold text-sm">{item.label}</span>
-                        {item.description && (
-                          <span className="text-xs text-muted-foreground truncate">{item.description}</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to={href}
+                        className={cn(
+                          'flex items-center justify-center w-full h-10 rounded-lg transition-all duration-150',
+                          isActive
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
                         )}
-                      </div>
-                    )}
-                  </Link>
+                      >
+                        <item.icon className="w-5 h-5" />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={10}>
+                      {item.label}
+                    </TooltipContent>
+                  </Tooltip>
                 </li>
               );
             }
 
-            return null;
+            // Expanded state with submenu
+            if (hasSubItems) {
+              return (
+                <li key={item.label}>
+                  <button
+                    onClick={() => toggleMenu(item.label)}
+                    className={cn(
+                      'flex items-center justify-between w-full px-3 py-2.5 rounded-lg transition-all duration-150',
+                      isActive
+                        ? 'text-primary font-medium'
+                        : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-5 h-5" />
+                      <span className="text-sm">{item.label}</span>
+                    </div>
+                    <ChevronRight className={cn(
+                      'w-4 h-4 transition-transform duration-200',
+                      isOpen && 'rotate-90'
+                    )} />
+                  </button>
+                  
+                  {/* Submenu */}
+                  <div className={cn(
+                    'overflow-hidden transition-all duration-200',
+                    isOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
+                  )}>
+                    <ul className="mt-1 ml-4 pl-4 border-l border-sidebar-border space-y-0.5">
+                      {item.subItems?.map((subItem) => {
+                        const subActive = isSubItemActive(subItem.href);
+                        return (
+                          <li key={subItem.href}>
+                            <Link
+                              to={subItem.href}
+                              className={cn(
+                                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-150',
+                                subActive
+                                  ? 'text-primary font-medium bg-sidebar-accent'
+                                  : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                              )}
+                            >
+                              <subItem.icon className="w-4 h-4" />
+                              <span>{subItem.label}</span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </li>
+              );
+            }
+
+            // Simple link (expanded)
+            return (
+              <li key={item.label}>
+                <Link
+                  to={item.href || '/'}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150',
+                    isActive
+                      ? 'bg-primary text-primary-foreground font-medium'
+                      : 'text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                  )}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="text-sm">{item.label}</span>
+                </Link>
+              </li>
+            );
           })}
         </ul>
       </nav>
 
-      {/* Footer */}
+      {/* Expand Menu Toggle */}
+      {!collapsed && (
+        <div className="px-4 py-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-sidebar-foreground/60">expandir menu</span>
+            <Switch 
+              checked={locked}
+              onCheckedChange={toggleExpand}
+              className="scale-75"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Footer Actions */}
       <div className={cn(
-        'p-3 border-t border-sidebar-border space-y-2 overflow-hidden',
-        collapsed ? 'flex flex-col items-center' : ''
+        'py-3 space-y-1',
+        collapsed ? 'px-2' : 'px-3'
       )}>
-        <Button
-          variant="ghost"
-          size={collapsed ? 'icon' : 'default'}
-          onClick={toggleTheme}
-          className={cn(
-            'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-            collapsed ? 'w-10 h-10' : 'w-full justify-start gap-3'
+        {/* Theme Toggle */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={toggleTheme}
+              className={cn(
+                'flex items-center gap-3 w-full rounded-lg transition-colors',
+                collapsed 
+                  ? 'justify-center h-10' 
+                  : 'px-3 py-2',
+                'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+              )}
+            >
+              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              {!collapsed && <span className="text-sm">{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</span>}
+            </button>
+          </TooltipTrigger>
+          {collapsed && (
+            <TooltipContent side="right" sideOffset={10}>
+              {theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
+            </TooltipContent>
           )}
-        >
-          {theme === 'light' ? <Moon className="w-5 h-5 flex-shrink-0" /> : <Sun className="w-5 h-5 flex-shrink-0" />}
-          {!collapsed && <span className="whitespace-nowrap">{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</span>}
-        </Button>
-        <Button
-          variant="ghost"
-          size={collapsed ? 'icon' : 'default'}
-          onClick={signOut}
-          className={cn(
-            'text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive',
-            collapsed ? 'w-10 h-10' : 'w-full justify-start gap-3'
+        </Tooltip>
+
+        {/* Help */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className={cn(
+                'flex items-center gap-3 w-full rounded-lg transition-colors',
+                collapsed 
+                  ? 'justify-center h-10' 
+                  : 'px-3 py-2',
+                'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+              )}
+            >
+              <HelpCircle className="w-5 h-5" />
+              {!collapsed && <span className="text-sm">Ajuda</span>}
+            </button>
+          </TooltipTrigger>
+          {collapsed && (
+            <TooltipContent side="right" sideOffset={10}>
+              Ajuda
+            </TooltipContent>
           )}
-        >
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className="whitespace-nowrap">Sair</span>}
-        </Button>
+        </Tooltip>
+
+        {/* Notifications */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              className={cn(
+                'flex items-center gap-3 w-full rounded-lg transition-colors',
+                collapsed 
+                  ? 'justify-center h-10' 
+                  : 'px-3 py-2',
+                'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+              )}
+            >
+              <Bell className="w-5 h-5" />
+              {!collapsed && <span className="text-sm">Notificações</span>}
+            </button>
+          </TooltipTrigger>
+          {collapsed && (
+            <TooltipContent side="right" sideOffset={10}>
+              Notificações
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </div>
+
+      {/* User Avatar */}
+      <div className={cn(
+        'py-4 border-t border-sidebar-border',
+        collapsed ? 'px-2 flex justify-center' : 'px-3'
+      )}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={signOut}
+              className={cn(
+                'flex items-center gap-3 rounded-lg transition-colors w-full',
+                collapsed 
+                  ? 'justify-center' 
+                  : 'px-2 py-2 hover:bg-sidebar-accent'
+              )}
+            >
+              <div className="relative">
+                <Avatar className="h-9 w-9 border-2 border-sidebar-border">
+                  <AvatarImage src="" />
+                  <AvatarFallback className="bg-sidebar-accent text-sidebar-foreground text-sm">
+                    {userInitials}
+                  </AvatarFallback>
+                </Avatar>
+                {/* Online indicator */}
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-500 border-2 border-sidebar rounded-full" />
+              </div>
+              {!collapsed && (
+                <div className="flex flex-col items-start min-w-0 flex-1">
+                  <span className="text-sm font-medium text-sidebar-foreground truncate max-w-[140px]">
+                    {user?.email?.split('@')[0] || 'Usuário'}
+                  </span>
+                  <span className="text-xs text-sidebar-foreground/50">Sair</span>
+                </div>
+              )}
+            </button>
+          </TooltipTrigger>
+          {collapsed && (
+            <TooltipContent side="right" sideOffset={10}>
+              <div className="text-center">
+                <p className="font-medium">{user?.email?.split('@')[0] || 'Usuário'}</p>
+                <p className="text-xs text-muted-foreground">Clique para sair</p>
+              </div>
+            </TooltipContent>
+          )}
+        </Tooltip>
       </div>
     </aside>
   );
