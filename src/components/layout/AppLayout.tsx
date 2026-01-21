@@ -19,10 +19,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         onLockedChange={setLocked}
       />
       
-      {/* Main content - adjust margin when sidebar is locked open */}
+      {/* Main content - always 60px margin for icon sidebar, +200px when locked */}
       <div className={cn(
         "transition-all duration-200",
-        locked ? "lg:ml-[280px]" : "lg:ml-20"
+        locked ? "lg:ml-[260px]" : "lg:ml-[60px]"
       )}>
         <Header />
         <main id="main-content" className="p-4 lg:p-6" role="main" aria-label="Conteúdo principal">
