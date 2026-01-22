@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useMemo } from 'react';
+import { forwardRef, useCallback, useMemo, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
@@ -89,7 +89,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    key: 'financas',
+    key: 'finanças',
     label: 'finanças',
     icon: Landmark,
     items: [
@@ -98,22 +98,6 @@ const navGroups: NavGroup[] = [
       { icon: BarChart3, label: 'Relatórios', href: '/relatorios' },
     ],
   },
-];
-
-// Todos os itens de navegação para o estado expandido simples
-const allNavItems: NavSubItem[] = [
-  { icon: LayoutGrid, label: 'Dashboard', href: '/' },
-  { icon: CalendarDays, label: 'Agenda', href: '/agenda' },
-  { icon: UsersRound, label: 'Clientes', href: '/clientes' },
-  { icon: FileText, label: 'Orçamentos', href: '/orcamentos' },
-  { icon: Layers, label: 'Projetos', href: '/projetos' },
-  { icon: CalendarRange, label: 'Cronograma', href: '/gantt' },
-  { icon: ArrowUpDown, label: 'Fluxo de Caixa', href: '/financeiro/fluxo-caixa' },
-  { icon: Landmark, label: 'Contas', href: '/financeiro/contas' },
-  { icon: BarChart3, label: 'Relatórios', href: '/relatorios' },
-  { icon: BoxIcon, label: 'Produtos', href: '/catalogo/produtos' },
-  { icon: HandCoins, label: 'Serviços', href: '/catalogo/servicos' },
-  { icon: Tags, label: 'Tabela de Preços', href: '/catalogo/precos' },
 ];
 
 // Wrap button with forwardRef for Tooltip compatibility
@@ -140,51 +124,59 @@ export function Sidebar() {
     return group.items.some(item => isItemActive(item.href));
   }, [isItemActive]);
 
+  // Encontrar grupo ativo baseado na rota atual
   const currentActiveGroup = useMemo(() => {
-    return navGroups.find(g => isGroupActive(g))?.key || null;
+    return navGroups.find(g => isGroupActive(g))?.key || 'inicio';
   }, [isGroupActive]);
 
+  // Atualizar grupo ativo quando a rota muda
+  useEffect(() => {
+    if (state === 'dual-pane' && locked && !activeGroup) {
+      setActiveGroup(currentActiveGroup);
+    }
+  }, [currentActiveGroup, state, locked, activeGroup, setActiveGroup]);
+
+  // Estado 1: Minimal -> Icons
+  // Estado 2: Icons -> Expanded (com transição)
+  // Estado 3: Expanded (drawer lateral)
+  // Estado 4: Dual-Pane (duas colunas)
   const handleMenuToggle = useCallback(() => {
     if (state === 'minimal') {
       setState('icons');
     } else if (state === 'icons') {
       setState('expanded');
     } else if (state === 'expanded') {
-      setState('icons');
+      setState('minimal');
     } else if (state === 'dual-pane') {
       setState('expanded');
       setActiveGroup(null);
     }
   }, [state, setState, setActiveGroup]);
 
+  // Ao clicar em um grupo no estado icons/expanded, abre dual-pane
   const handleGroupClick = useCallback((groupKey: string) => {
-    if (state === 'icons' || state === 'expanded') {
-      setState('dual-pane');
-      setActiveGroup(groupKey);
-    } else if (state === 'dual-pane') {
-      setActiveGroup(activeGroup === groupKey ? null : groupKey);
-    }
-  }, [state, setState, activeGroup, setActiveGroup]);
+    setState('dual-pane');
+    setActiveGroup(groupKey);
+  }, [setState, setActiveGroup]);
 
   const handleItemClick = useCallback((href: string) => {
     navigate(href);
     if (!locked) {
-      setActiveGroup(null);
+      // Ao navegar, fecha o dual-pane se não estiver travado
       if (state === 'dual-pane') {
         setState('icons');
+        setActiveGroup(null);
       }
     }
   }, [navigate, locked, state, setState, setActiveGroup]);
 
   const handleLockToggle = useCallback((checked: boolean) => {
     setLocked(checked);
-    if (checked) {
+    if (checked && state !== 'dual-pane') {
       setState('dual-pane');
-      if (!activeGroup) {
-        setActiveGroup(currentActiveGroup || 'inicio');
-      }
+      setActiveGroup(currentActiveGroup);
     }
-  }, [setLocked, setState, activeGroup, setActiveGroup, currentActiveGroup]);
+  }, [setLocked, setState, state, setActiveGroup, currentActiveGroup]);
 
   const userInitials = user?.email?.charAt(0).toUpperCase() || 'U';
 
@@ -211,19 +203,19 @@ export function Sidebar() {
         )}
       >
         {/* Logo Area */}
-        <div className="flex items-center justify-center h-16">
+        <div className="flex items-center justify-center h-14 shrink-0">
           <Link to="/">
             {state === 'expanded' ? (
               <img 
                 src="/images/logo-jmario.png" 
                 alt="J.Mario" 
-                className="h-6 w-auto"
+                className="h-5 w-auto"
               />
             ) : (
               <img 
                 src="/images/icon-jmario.png" 
                 alt="J.Mario" 
-                className="h-7 w-7 object-contain"
+                className="h-6 w-6 object-contain"
               />
             )}
           </Link>
@@ -231,8 +223,8 @@ export function Sidebar() {
 
         {/* Menu Toggle Button */}
         <div className={cn(
-          'flex items-center mb-2',
-          state === 'expanded' ? 'justify-start px-4' : 'justify-center'
+          'flex items-center shrink-0',
+          state === 'expanded' ? 'px-4' : 'justify-center'
         )}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -247,78 +239,21 @@ export function Sidebar() {
               </IconButton>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={10}>
-              {state === 'minimal' ? 'Mostrar ícones' : state === 'icons' ? 'Expandir menu' : 'Recolher menu'}
+              Menu
             </TooltipContent>
           </Tooltip>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-1 overflow-y-auto overflow-x-hidden scrollbar-hidden">
-          {/* Estado minimal - sem navegação, só menu e user */}
+        <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-hidden">
+          {/* Estado 1: Minimal - sem navegação visível */}
           {state === 'minimal' && null}
 
-          {/* Estado icons - apenas ícones das páginas */}
+          {/* Estado 2: Icons - apenas ícones dos GRUPOS */}
           {state === 'icons' && (
-            <ul className="space-y-0.5 px-2">
-              {allNavItems.map((item) => {
-                const isActive = isItemActive(item.href);
-                return (
-                  <li key={item.href}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <IconButton
-                          onClick={() => handleItemClick(item.href)}
-                          className={cn(
-                            'flex items-center justify-center w-full h-9 rounded-md transition-all duration-150',
-                            isActive
-                              ? 'text-sidebar-primary bg-sidebar-accent'
-                              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                          )}
-                        >
-                          <item.icon className="w-[18px] h-[18px]" />
-                        </IconButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" sideOffset={10}>
-                        {item.label}
-                      </TooltipContent>
-                    </Tooltip>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          {/* Estado expanded - ícones + labels */}
-          {state === 'expanded' && (
-            <ul className="space-y-0.5 px-3">
-              {allNavItems.map((item) => {
-                const isActive = isItemActive(item.href);
-                return (
-                  <li key={item.href}>
-                    <button
-                      onClick={() => handleItemClick(item.href)}
-                      className={cn(
-                        'flex items-center gap-3 w-full h-9 px-3 rounded-md transition-all duration-150 text-sm text-left',
-                        isActive
-                          ? 'text-sidebar-primary bg-sidebar-accent'
-                          : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                      )}
-                    >
-                      <item.icon className="w-[18px] h-[18px] shrink-0" />
-                      <span className="truncate">{item.label}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          {/* Estado dual-pane - grupos na barra principal */}
-          {state === 'dual-pane' && (
-            <ul className="space-y-0.5 px-2">
+            <ul className="space-y-1 px-2">
               {navGroups.map((group) => {
                 const isActive = isGroupActive(group);
-                const isOpen = activeGroup === group.key;
                 return (
                   <li key={group.key}>
                     <Tooltip>
@@ -327,9 +262,77 @@ export function Sidebar() {
                           onClick={() => handleGroupClick(group.key)}
                           className={cn(
                             'flex items-center justify-center w-full h-9 rounded-md transition-all duration-150',
-                            isOpen || isActive
-                              ? 'text-sidebar-primary bg-sidebar-accent'
+                            isActive
+                              ? 'text-sidebar-primary'
                               : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                          )}
+                        >
+                          <group.icon className="w-[18px] h-[18px]" />
+                        </IconButton>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" sideOffset={10}>
+                        {group.label}
+                      </TooltipContent>
+                    </Tooltip>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {/* Estado 3: Expanded - drawer com ícones + labels das subpáginas */}
+          {state === 'expanded' && (
+            <div className="px-3 space-y-4">
+              {navGroups.map((group) => (
+                <div key={group.key}>
+                  <h3 className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
+                    {group.label}
+                  </h3>
+                  <ul className="space-y-0.5">
+                    {group.items.map((item) => {
+                      const isActive = isItemActive(item.href);
+                      return (
+                        <li key={item.href}>
+                          <button
+                            onClick={() => handleItemClick(item.href)}
+                            className={cn(
+                              'flex items-center gap-3 w-full h-8 px-3 rounded-md transition-all duration-150 text-sm text-left',
+                              isActive
+                                ? 'text-sidebar-primary bg-sidebar-accent'
+                                : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                            )}
+                          >
+                            <item.icon className="w-4 h-4 shrink-0" />
+                            <span className="truncate">{item.label}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Estado 4: Dual-Pane - grupos na barra principal (igual ao icons) */}
+          {state === 'dual-pane' && (
+            <ul className="space-y-1 px-2">
+              {navGroups.map((group) => {
+                const isActive = isGroupActive(group);
+                const isOpen = activeGroup === group.key;
+                return (
+                  <li key={group.key}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <IconButton
+                          onClick={() => setActiveGroup(group.key)}
+                          className={cn(
+                            'flex items-center justify-center w-full h-9 rounded-md transition-all duration-150',
+                            isOpen
+                              ? 'text-sidebar-primary bg-sidebar-accent'
+                              : isActive
+                                ? 'text-sidebar-primary'
+                                : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
                           )}
                         >
                           <group.icon className="w-[18px] h-[18px]" />
@@ -348,24 +351,24 @@ export function Sidebar() {
 
         {/* Footer Icons */}
         <div className={cn(
-          'py-3 space-y-1',
+          'py-3 space-y-1 shrink-0',
           state === 'expanded' ? 'px-3' : 'px-2'
         )}>
           {state === 'expanded' ? (
             <>
               <button
                 onClick={toggleTheme}
-                className="flex items-center gap-3 w-full h-9 px-3 rounded-md text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+                className="flex items-center gap-3 w-full h-8 px-3 rounded-md text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
               >
-                {theme === 'light' ? <Moon className="w-[18px] h-[18px]" /> : <Sun className="w-[18px] h-[18px]" />}
+                {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                 <span>{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</span>
               </button>
-              <button className="flex items-center gap-3 w-full h-9 px-3 rounded-md text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
-                <HelpCircle className="w-[18px] h-[18px]" />
+              <button className="flex items-center gap-3 w-full h-8 px-3 rounded-md text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+                <HelpCircle className="w-4 h-4" />
                 <span>Ajuda</span>
               </button>
-              <button className="flex items-center gap-3 w-full h-9 px-3 rounded-md text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
-                <Bell className="w-[18px] h-[18px]" />
+              <button className="flex items-center gap-3 w-full h-8 px-3 rounded-md text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+                <Bell className="w-4 h-4" />
                 <span>Notificações</span>
               </button>
             </>
@@ -412,7 +415,7 @@ export function Sidebar() {
 
         {/* User Avatar */}
         <div className={cn(
-          'py-4',
+          'py-3 shrink-0',
           state === 'expanded' ? 'px-3' : 'px-2 flex justify-center'
         )}>
           {state === 'expanded' ? (
@@ -421,13 +424,13 @@ export function Sidebar() {
               className="flex items-center gap-3 w-full h-9 px-3 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
             >
               <div className="relative">
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-7 w-7">
                   <AvatarImage src="" />
                   <AvatarFallback className="bg-amber-100 text-amber-800 text-xs font-medium">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
-                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-500 border-2 border-sidebar rounded-full" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-blue-500 border-2 border-sidebar rounded-full" />
               </div>
               <span className="truncate">{user?.email?.split('@')[0] || 'Usuário'}</span>
             </button>
@@ -439,13 +442,13 @@ export function Sidebar() {
                   className="flex items-center justify-center"
                 >
                   <div className="relative">
-                    <Avatar className="h-9 w-9">
+                    <Avatar className="h-8 w-8">
                       <AvatarImage src="" />
                       <AvatarFallback className="bg-amber-100 text-amber-800 text-sm font-medium">
                         {userInitials}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-500 border-2 border-sidebar rounded-full" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-500 border-2 border-sidebar rounded-full" />
                   </div>
                 </IconButton>
               </TooltipTrigger>
@@ -463,12 +466,12 @@ export function Sidebar() {
       {/* Secondary Panel for Dual-Pane state */}
       <aside
         className={cn(
-          'fixed left-[60px] top-0 z-30 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 ease-out hidden lg:flex',
+          'fixed left-[60px] top-0 z-30 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 ease-out hidden lg:flex overflow-hidden',
           showSecondaryPanel ? 'w-[180px] opacity-100' : 'w-0 opacity-0 pointer-events-none'
         )}
       >
         {/* Logo Text */}
-        <div className="flex items-center h-16 px-4">
+        <div className="flex items-center h-14 px-4 shrink-0">
           <img 
             src="/images/logo-jmario.png" 
             alt="J.Mario" 
@@ -477,29 +480,30 @@ export function Sidebar() {
         </div>
 
         {/* Group Title */}
-        <div className="px-4 py-2">
+        <div className="px-4 py-2 shrink-0">
           <h3 className="text-sm font-medium text-sidebar-foreground capitalize">
             {navGroups.find(g => g.key === activeGroup)?.label}
           </h3>
         </div>
 
-        {/* Categories */}
-        <div className="px-4 py-2 space-y-1">
+        {/* Categories List */}
+        <div className="px-4 py-2 space-y-0.5 shrink-0">
           {navGroups.map((group) => {
-            const isActive = group.key === activeGroup;
+            const isSelected = group.key === activeGroup;
+            const isActive = isGroupActive(group);
             return (
               <button
                 key={group.key}
                 onClick={() => setActiveGroup(group.key)}
                 className={cn(
-                  'flex items-center justify-between w-full py-1.5 text-sm font-medium transition-colors',
-                  isActive
+                  'flex items-center justify-between w-full py-1.5 text-sm font-medium transition-colors text-left',
+                  isSelected
                     ? 'text-sidebar-foreground'
                     : 'text-sidebar-foreground/50 hover:text-sidebar-foreground'
                 )}
               >
                 <span>{group.label}</span>
-                {isGroupActive(group) && (
+                {isActive && (
                   <span className="w-1.5 h-1.5 rounded-full bg-sidebar-primary" />
                 )}
               </button>
@@ -508,7 +512,7 @@ export function Sidebar() {
         </div>
 
         {/* Expand Menu Toggle */}
-        <div className="px-4 py-3 mt-2">
+        <div className="px-4 py-3 shrink-0">
           <div className="flex items-center justify-between">
             <span className="text-xs text-sidebar-foreground/50">expandir menu</span>
             <Switch 
@@ -520,7 +524,7 @@ export function Sidebar() {
         </div>
 
         {/* Secondary Links */}
-        <div className="px-4 py-2 space-y-0.5">
+        <div className="px-4 py-2 space-y-0.5 shrink-0">
           <Link
             to="/configuracoes"
             className={cn(
@@ -543,8 +547,8 @@ export function Sidebar() {
           </button>
         </div>
 
-        {/* Subitems */}
-        <nav className="flex-1 px-4 py-4 overflow-y-auto overflow-x-hidden scrollbar-hidden border-t border-sidebar-border mt-2">
+        {/* Subitems of active group */}
+        <nav className="flex-1 px-4 py-3 overflow-y-auto overflow-x-hidden scrollbar-hidden border-t border-sidebar-border">
           {activeGroup && (
             <ul className="space-y-0.5">
               {navGroups.find(g => g.key === activeGroup)?.items.map((item) => {
