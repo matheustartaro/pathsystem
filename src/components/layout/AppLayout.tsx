@@ -8,21 +8,36 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { collapsed, setCollapsed, locked, setLocked } = useSidebarContext();
+  const { state, activeGroup, locked } = useSidebarContext();
+
+  // Calcular margin-left baseado no estado da sidebar
+  const getMarginLeft = () => {
+    switch (state) {
+      case 'minimal':
+        return 'lg:ml-[48px]';
+      case 'icons':
+        return 'lg:ml-[60px]';
+      case 'expanded':
+        return 'lg:ml-[220px]';
+      case 'dual-pane':
+        // Se tem painel secundário aberto (com grupo ativo)
+        if (activeGroup) {
+          return 'lg:ml-[240px]'; // 60px + 180px
+        }
+        return 'lg:ml-[60px]';
+      default:
+        return 'lg:ml-[60px]';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar 
-        collapsed={collapsed} 
-        onCollapsedChange={setCollapsed}
-        locked={locked}
-        onLockedChange={setLocked}
-      />
+      <Sidebar />
       
-      {/* Main content - always 60px margin for icon sidebar, +200px when locked */}
+      {/* Main content */}
       <div className={cn(
         "transition-all duration-200",
-        locked ? "lg:ml-[260px]" : "lg:ml-[60px]"
+        getMarginLeft()
       )}>
         <Header />
         <main id="main-content" className="p-4 lg:p-6" role="main" aria-label="Conteúdo principal">
