@@ -1,20 +1,23 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+// 4 estados de expansão da sidebar
+export type SidebarState = 'minimal' | 'icons' | 'expanded' | 'dual-pane';
+
 interface SidebarContextType {
-  collapsed: boolean;
-  setCollapsed: (collapsed: boolean) => void;
+  state: SidebarState;
+  setState: (state: SidebarState) => void;
+  activeGroup: string | null;
+  setActiveGroup: (group: string | null) => void;
   locked: boolean;
   setLocked: (locked: boolean) => void;
-  openMenus: string[];
-  toggleMenu: (label: string) => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [collapsed, setCollapsed] = useState(() => {
-    const saved = localStorage.getItem('sidebar-collapsed');
-    return saved ? JSON.parse(saved) : true;
+  const [state, setState] = useState<SidebarState>(() => {
+    const saved = localStorage.getItem('sidebar-state');
+    return (saved as SidebarState) || 'icons';
   });
   
   const [locked, setLocked] = useState(() => {
@@ -22,39 +25,24 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : false;
   });
 
-  const [openMenus, setOpenMenus] = useState<string[]>(() => {
-    const saved = localStorage.getItem('sidebar-open-menus');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [activeGroup, setActiveGroup] = useState<string | null>(null);
 
   useEffect(() => {
-    localStorage.setItem('sidebar-collapsed', JSON.stringify(collapsed));
-  }, [collapsed]);
+    localStorage.setItem('sidebar-state', state);
+  }, [state]);
 
   useEffect(() => {
     localStorage.setItem('sidebar-locked', JSON.stringify(locked));
   }, [locked]);
 
-  useEffect(() => {
-    localStorage.setItem('sidebar-open-menus', JSON.stringify(openMenus));
-  }, [openMenus]);
-
-  const toggleMenu = (label: string) => {
-    setOpenMenus(prev => 
-      prev.includes(label) 
-        ? prev.filter(l => l !== label) 
-        : [...prev, label]
-    );
-  };
-
   return (
     <SidebarContext.Provider value={{ 
-      collapsed, 
-      setCollapsed, 
+      state,
+      setState,
+      activeGroup,
+      setActiveGroup,
       locked, 
-      setLocked,
-      openMenus,
-      toggleMenu
+      setLocked
     }}>
       {children}
     </SidebarContext.Provider>
