@@ -39,27 +39,33 @@ export function ServiceFormDialog({ open, onOpenChange, service, onSuccess }: Se
         nome: service.nome,
         descricao: service.descricao || '',
         horas: service.horas,
-        custo_hora: service.custo_hora || settings.valor_hora,
+        custo_hora: service.custo_hora || settings?.valor_hora || 0,
         preco_venda: service.preco_venda,
         category_id: service.category_id || '',
         ativo: service.ativo,
       });
     } else {
+      const valorHora = settings?.valor_hora || 0;
+      const markup = settings?.markup_padrao || 1;
       setFormData({
         nome: '',
         descricao: '',
         horas: 1,
-        custo_hora: settings.valor_hora,
-        preco_venda: settings.valor_hora * settings.markup_padrao,
+        custo_hora: valorHora,
+        preco_venda: valorHora * markup,
         category_id: '',
         ativo: true,
       });
     }
   }, [service, open, settings]);
 
+  // Valores seguros para settings
+  const markupPadrao = settings?.markup_padrao ?? 1;
+  const valorHoraPadrao = settings?.valor_hora ?? 0;
+
   // (horas * custo_hora) * markup
   const calcularPreco = (horas: number, custoHora: number) => {
-    return (horas * custoHora) * settings.markup_padrao;
+    return (horas * custoHora) * markupPadrao;
   };
 
   const handleHorasChange = (horas: number) => {
@@ -210,7 +216,7 @@ export function ServiceFormDialog({ open, onOpenChange, service, onSuccess }: Se
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
-              Fórmula: ({formData.horas}h × R${formData.custo_hora.toFixed(2)}) × {settings.markup_padrao} = R${calcularPreco(formData.horas, formData.custo_hora).toFixed(2)}
+              Fórmula: ({formData.horas}h × R${(formData.custo_hora || 0).toFixed(2)}) × {markupPadrao} = R${calcularPreco(formData.horas, formData.custo_hora).toFixed(2)}
             </p>
           </div>
 
