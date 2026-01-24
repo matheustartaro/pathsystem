@@ -1,21 +1,53 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, GanttChart, FolderKanban, Settings, Moon, Sun, Database } from 'lucide-react';
+import { 
+  LayoutGrid, 
+  CalendarRange, 
+  Layers, 
+  Settings, 
+  Moon, 
+  Sun, 
+  BoxIcon,
+  UsersRound,
+  CalendarDays,
+  ArrowUpDown,
+  Landmark,
+  HandCoins,
+  Tags,
+  BarChart3,
+  FileText
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/useTheme';
 import { SheetClose } from '@/components/ui/sheet';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
-  { icon: GanttChart, label: 'Gantt', href: '/gantt' },
-  { icon: FolderKanban, label: 'Projetos', href: '/projetos' },
-  { icon: Database, label: 'Banco de Dados', href: '/banco-de-dados' },
+  { icon: LayoutGrid, label: 'Dashboard', href: '/' },
+  { icon: CalendarDays, label: 'Agenda', href: '/agenda' },
+  { icon: UsersRound, label: 'Clientes', href: '/clientes' },
+  { icon: BoxIcon, label: 'Produtos', href: '/catalogo/produtos' },
+  { icon: HandCoins, label: 'Serviços', href: '/catalogo/servicos' },
+  { icon: Tags, label: 'Tabela de Preços', href: '/catalogo/precos' },
+  { icon: FileText, label: 'Orçamentos', href: '/orcamentos' },
+  { icon: Layers, label: 'Projetos', href: '/projetos' },
+  { icon: CalendarRange, label: 'Cronograma', href: '/gantt' },
+  { icon: ArrowUpDown, label: 'Fluxo de Caixa', href: '/financeiro/fluxo-caixa' },
+  { icon: Landmark, label: 'Contas', href: '/financeiro/contas' },
+  { icon: BarChart3, label: 'Relatórios', href: '/relatorios' },
   { icon: Settings, label: 'Configurações', href: '/configuracoes' },
 ];
 
-export function MobileNav() {
+interface MobileNavProps {
+  onNavigate?: () => void;
+}
+
+export function MobileNav({ onNavigate }: MobileNavProps) {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+
+  const handleNavigate = () => {
+    onNavigate?.();
+  };
 
   return (
     <div className="flex flex-col h-full bg-sidebar">
@@ -29,8 +61,8 @@ export function MobileNav() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-6 px-3">
-        <ul className="space-y-1">
+      <nav className="flex-1 py-4 px-3 overflow-y-auto">
+        <ul className="space-y-0.5">
           {navItems.map((item) => {
             const isActive = location.pathname === item.href ||
               (item.href !== '/' && location.pathname.startsWith(item.href));
@@ -40,14 +72,15 @@ export function MobileNav() {
                 <SheetClose asChild>
                   <Link
                     to={item.href}
+                    onClick={handleNavigate}
                     className={cn(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200',
+                      'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm',
                       isActive
                         ? 'bg-sidebar-accent text-sidebar-primary font-medium'
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                        : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
                     )}
                   >
-                    <item.icon className="w-5 h-5" />
+                    <item.icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
                 </SheetClose>
@@ -62,9 +95,9 @@ export function MobileNav() {
         <Button
           variant="ghost"
           onClick={toggleTheme}
-          className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          className="w-full justify-start gap-3 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
         >
-          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+          {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           {theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
         </Button>
       </div>
