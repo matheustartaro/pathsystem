@@ -1,7 +1,6 @@
 import { cn } from '@/lib/utils';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { MobileNav } from './MobileNav';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 
 interface AppLayoutProps {
@@ -31,7 +30,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <MobileNav />
       
       <div className={cn('transition-all duration-200', getMarginLeft())}>
         <Header />
