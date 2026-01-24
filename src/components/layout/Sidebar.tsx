@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useMemo, useEffect } from 'react';
+import { forwardRef, useCallback, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
@@ -21,14 +21,13 @@ import {
   Menu,
   HelpCircle,
   Bell,
-  Lightbulb,
-  MessageCircle,
-  Package
+  ChevronRight,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSidebarContext, SidebarState } from '@/contexts/SidebarContext';
-import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Tooltip,
@@ -36,67 +35,82 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-interface NavSubItem {
+interface NavPage {
+  key: string;
   icon: LucideIcon;
   label: string;
   href: string;
+  subPages?: { icon: LucideIcon; label: string; href: string }[];
 }
 
-interface NavGroup {
-  key: string;
-  label: string;
-  icon: LucideIcon;
-  items: NavSubItem[];
-}
-
-// Grupos de navegação como na referência do Tiny
-const navGroups: NavGroup[] = [
-  {
-    key: 'inicio',
-    label: 'início',
-    icon: LayoutGrid,
-    items: [
-      { icon: LayoutGrid, label: 'Dashboard', href: '/' },
-      { icon: CalendarDays, label: 'Agenda', href: '/agenda' },
-    ],
+// Páginas principais com suas sub-páginas (não categorias!)
+const navPages: NavPage[] = [
+  { 
+    key: 'dashboard', 
+    icon: LayoutGrid, 
+    label: 'Dashboard', 
+    href: '/' 
   },
-  {
-    key: 'cadastros',
-    label: 'cadastros',
-    icon: UsersRound,
-    items: [
-      { icon: UsersRound, label: 'Clientes', href: '/clientes' },
-    ],
+  { 
+    key: 'agenda', 
+    icon: CalendarDays, 
+    label: 'Agenda', 
+    href: '/agenda' 
   },
-  {
-    key: 'suprimentos',
-    label: 'suprimentos',
-    icon: Package,
-    items: [
+  { 
+    key: 'clientes', 
+    icon: UsersRound, 
+    label: 'Clientes', 
+    href: '/clientes' 
+  },
+  { 
+    key: 'catalogo', 
+    icon: BoxIcon, 
+    label: 'Catálogo', 
+    href: '/catalogo/produtos',
+    subPages: [
       { icon: BoxIcon, label: 'Produtos', href: '/catalogo/produtos' },
       { icon: HandCoins, label: 'Serviços', href: '/catalogo/servicos' },
       { icon: Tags, label: 'Tabela de Preços', href: '/catalogo/precos' },
-    ],
+    ]
   },
-  {
-    key: 'vendas',
-    label: 'vendas',
-    icon: FileText,
-    items: [
-      { icon: FileText, label: 'Orçamentos', href: '/orcamentos' },
-      { icon: Layers, label: 'Projetos', href: '/projetos' },
+  { 
+    key: 'orcamentos', 
+    icon: FileText, 
+    label: 'Orçamentos', 
+    href: '/orcamentos' 
+  },
+  { 
+    key: 'projetos', 
+    icon: Layers, 
+    label: 'Projetos', 
+    href: '/projetos',
+    subPages: [
+      { icon: Layers, label: 'Lista de Projetos', href: '/projetos' },
       { icon: CalendarRange, label: 'Cronograma', href: '/gantt' },
-    ],
+    ]
   },
-  {
-    key: 'finanças',
-    label: 'finanças',
-    icon: Landmark,
-    items: [
+  { 
+    key: 'financeiro', 
+    icon: Landmark, 
+    label: 'Financeiro', 
+    href: '/financeiro/fluxo-caixa',
+    subPages: [
       { icon: ArrowUpDown, label: 'Fluxo de Caixa', href: '/financeiro/fluxo-caixa' },
       { icon: Landmark, label: 'Contas', href: '/financeiro/contas' },
-      { icon: BarChart3, label: 'Relatórios', href: '/relatorios' },
-    ],
+    ]
+  },
+  { 
+    key: 'relatorios', 
+    icon: BarChart3, 
+    label: 'Relatórios', 
+    href: '/relatorios' 
+  },
+  { 
+    key: 'configuracoes', 
+    icon: Settings, 
+    label: 'Configurações', 
+    href: '/configuracoes' 
   },
 ];
 
@@ -113,85 +127,94 @@ export function Sidebar() {
   const { signOut, user } = useAuth();
   const { state, setState, activeGroup, setActiveGroup, locked, setLocked } = useSidebarContext();
 
-  const isItemActive = useCallback((href: string): boolean => {
+  const isPageActive = useCallback((href: string): boolean => {
     if (href === '/') {
       return location.pathname === '/';
     }
     return location.pathname === href || location.pathname.startsWith(href + '/');
   }, [location.pathname]);
 
-  const isGroupActive = useCallback((group: NavGroup): boolean => {
-    return group.items.some(item => isItemActive(item.href));
-  }, [isItemActive]);
+  // Encontrar a página atual e suas sub-páginas
+  const currentPage = useMemo(() => {
+    return navPages.find(page => {
+      if (page.href === '/') {
+        return location.pathname === '/';
+      }
+      if (page.subPages) {
+        return page.subPages.some(sub => location.pathname === sub.href || location.pathname.startsWith(sub.href + '/'));
+      }
+      return location.pathname === page.href || location.pathname.startsWith(page.href + '/');
+    });
+  }, [location.pathname]);
 
-  // Encontrar grupo ativo baseado na rota atual
-  const currentActiveGroup = useMemo(() => {
-    return navGroups.find(g => isGroupActive(g))?.key || 'inicio';
-  }, [isGroupActive]);
+  // Sub-páginas da página atual (para modo ícones)
+  const currentSubPages = useMemo(() => {
+    return currentPage?.subPages || [];
+  }, [currentPage]);
 
-  // Atualizar grupo ativo quando a rota muda
-  useEffect(() => {
-    if (state === 'dual-pane' && locked && !activeGroup) {
-      setActiveGroup(currentActiveGroup);
-    }
-  }, [currentActiveGroup, state, locked, activeGroup, setActiveGroup]);
+  const userInitials = user?.email?.charAt(0).toUpperCase() || 'U';
 
-  // Estado 1: Minimal -> Icons
-  // Estado 2: Icons -> Expanded (com transição)
-  // Estado 3: Expanded (drawer lateral)
-  // Estado 4: Dual-Pane (duas colunas)
+  // Toggle entre estados
   const handleMenuToggle = useCallback(() => {
-    if (state === 'minimal') {
-      setState('icons');
-    } else if (state === 'icons') {
-      setState('expanded');
-    } else if (state === 'expanded') {
-      setState('minimal');
-    } else if (state === 'dual-pane') {
-      setState('expanded');
+    const transitions: Record<SidebarState, SidebarState> = {
+      'minimal': 'icons',
+      'icons': 'expanded',
+      'expanded': 'minimal',
+      'dual-pane': 'expanded',
+    };
+    setState(transitions[state]);
+    if (state === 'dual-pane') {
       setActiveGroup(null);
     }
   }, [state, setState, setActiveGroup]);
 
-  // Ao clicar em um grupo no estado icons/expanded, abre dual-pane
-  const handleGroupClick = useCallback((groupKey: string) => {
-    setState('dual-pane');
-    setActiveGroup(groupKey);
-  }, [setState, setActiveGroup]);
-
-  const handleItemClick = useCallback((href: string) => {
-    navigate(href);
-    if (!locked) {
-      // Ao navegar, fecha o dual-pane se não estiver travado
-      if (state === 'dual-pane') {
+  // Clique em página -> navegar ou abrir dual-pane se tiver sub-páginas
+  const handlePageClick = useCallback((page: NavPage) => {
+    if (page.subPages && page.subPages.length > 0) {
+      // Tem sub-páginas: abre dual-pane
+      setState('dual-pane');
+      setActiveGroup(page.key);
+    } else {
+      // Sem sub-páginas: navega direto
+      navigate(page.href);
+      if (!locked && state === 'dual-pane') {
         setState('icons');
         setActiveGroup(null);
       }
     }
-  }, [navigate, locked, state, setState, setActiveGroup]);
+  }, [navigate, setState, setActiveGroup, locked, state]);
 
-  const handleLockToggle = useCallback((checked: boolean) => {
-    setLocked(checked);
-    if (checked && state !== 'dual-pane') {
-      setState('dual-pane');
-      setActiveGroup(currentActiveGroup);
+  // Clique em sub-página
+  const handleSubPageClick = useCallback((href: string) => {
+    navigate(href);
+    if (!locked) {
+      setState('icons');
+      setActiveGroup(null);
     }
-  }, [setLocked, setState, state, setActiveGroup, currentActiveGroup]);
+  }, [navigate, locked, setState, setActiveGroup]);
 
-  const userInitials = user?.email?.charAt(0).toUpperCase() || 'U';
+  // Lock toggle
+  const handleLockToggle = useCallback(() => {
+    setLocked(!locked);
+  }, [locked, setLocked]);
 
-  // Calcular larguras baseado no estado
-  const getMainWidth = () => {
+  // Larguras baseadas no estado
+  const mainWidth = useMemo(() => {
     switch (state) {
-      case 'minimal': return 'w-[48px]';
-      case 'icons': return 'w-[60px]';
-      case 'expanded': return 'w-[220px]';
-      case 'dual-pane': return 'w-[60px]';
-      default: return 'w-[60px]';
+      case 'minimal': return 'w-12';
+      case 'icons': return 'w-14';
+      case 'expanded': return 'w-56';
+      case 'dual-pane': return 'w-14';
+      default: return 'w-14';
     }
-  };
+  }, [state]);
 
-  const showSecondaryPanel = state === 'dual-pane' && activeGroup;
+  // Página selecionada no dual-pane
+  const selectedPage = useMemo(() => {
+    return navPages.find(p => p.key === activeGroup);
+  }, [activeGroup]);
+
+  const showSecondaryPanel = state === 'dual-pane' && selectedPage?.subPages;
 
   return (
     <>
@@ -199,148 +222,155 @@ export function Sidebar() {
       <aside
         className={cn(
           'fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 ease-out hidden lg:flex',
-          getMainWidth()
+          mainWidth
         )}
       >
-        {/* Logo Area */}
+        {/* Logo */}
         <div className="flex items-center justify-center h-14 shrink-0">
           <Link to="/">
             {state === 'expanded' ? (
-              <img 
-                src="/images/logo-jmario.png" 
-                alt="J.Mario" 
-                className="h-5 w-auto"
-              />
+              <img src="/images/logo-jmario.png" alt="J.Mario" className="h-5 w-auto" />
             ) : (
-              <img 
-                src="/images/icon-jmario.png" 
-                alt="J.Mario" 
-                className="h-6 w-6 object-contain"
-              />
+              <img src="/images/icon-jmario.png" alt="J.Mario" className="h-6 w-6 object-contain" />
             )}
           </Link>
         </div>
 
-        {/* Menu Toggle Button */}
-        <div className={cn(
-          'flex items-center shrink-0',
-          state === 'expanded' ? 'px-4' : 'justify-center'
-        )}>
+        {/* Menu Toggle */}
+        <div className={cn('flex items-center shrink-0', state === 'expanded' ? 'px-3' : 'justify-center')}>
           <Tooltip>
             <TooltipTrigger asChild>
               <IconButton
                 onClick={handleMenuToggle}
-                className={cn(
-                  'flex items-center justify-center rounded-md transition-colors',
-                  'w-9 h-9 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                )}
+                className="flex items-center justify-center w-8 h-8 rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4 h-4" />
               </IconButton>
             </TooltipTrigger>
-            <TooltipContent side="right" sideOffset={10}>
-              Menu
-            </TooltipContent>
+            <TooltipContent side="right" sideOffset={8}>Menu</TooltipContent>
           </Tooltip>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden scrollbar-hidden">
-          {/* Estado 1: Minimal - sem navegação visível */}
+        <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden scrollbar-hidden">
+          {/* Estado MINIMAL: nada */}
           {state === 'minimal' && null}
 
-          {/* Estado 2: Icons - apenas ícones dos GRUPOS */}
+          {/* Estado ICONS: ícones das sub-páginas da página atual OU todas as páginas */}
           {state === 'icons' && (
             <ul className="space-y-1 px-2">
-              {navGroups.map((group) => {
-                const isActive = isGroupActive(group);
+              {currentSubPages.length > 0 ? (
+                // Mostra sub-páginas da página atual
+                currentSubPages.map((sub) => {
+                  const isActive = location.pathname === sub.href;
+                  return (
+                    <li key={sub.href}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <IconButton
+                            onClick={() => handleSubPageClick(sub.href)}
+                            className={cn(
+                              'flex items-center justify-center w-full h-9 rounded-md transition-colors',
+                              isActive
+                                ? 'text-sidebar-primary bg-sidebar-accent'
+                                : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                            )}
+                          >
+                            <sub.icon className="w-4 h-4" />
+                          </IconButton>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={8}>{sub.label}</TooltipContent>
+                      </Tooltip>
+                    </li>
+                  );
+                })
+              ) : (
+                // Mostra todas as páginas principais
+                navPages.map((page) => {
+                  const isActive = isPageActive(page.href) || (page.subPages?.some(s => isPageActive(s.href)));
+                  return (
+                    <li key={page.key}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <IconButton
+                            onClick={() => handlePageClick(page)}
+                            className={cn(
+                              'flex items-center justify-center w-full h-9 rounded-md transition-colors',
+                              isActive
+                                ? 'text-sidebar-primary bg-sidebar-accent'
+                                : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                            )}
+                          >
+                            <page.icon className="w-4 h-4" />
+                          </IconButton>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={8}>{page.label}</TooltipContent>
+                      </Tooltip>
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          )}
+
+          {/* Estado EXPANDED: lista completa com labels */}
+          {state === 'expanded' && (
+            <ul className="space-y-0.5 px-2">
+              {navPages.map((page) => {
+                const isActive = isPageActive(page.href) || (page.subPages?.some(s => isPageActive(s.href)));
+                const hasSubPages = page.subPages && page.subPages.length > 0;
                 return (
-                  <li key={group.key}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <IconButton
-                          onClick={() => handleGroupClick(group.key)}
-                          className={cn(
-                            'flex items-center justify-center w-full h-9 rounded-md transition-all duration-150',
-                            isActive
-                              ? 'text-sidebar-primary'
-                              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                          )}
-                        >
-                          <group.icon className="w-[18px] h-[18px]" />
-                        </IconButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" sideOffset={10}>
-                        {group.label}
-                      </TooltipContent>
-                    </Tooltip>
+                  <li key={page.key}>
+                    <button
+                      onClick={() => handlePageClick(page)}
+                      className={cn(
+                        'flex items-center gap-3 w-full h-9 px-3 rounded-md text-sm transition-colors',
+                        isActive
+                          ? 'text-sidebar-primary bg-sidebar-accent'
+                          : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                      )}
+                    >
+                      <page.icon className="w-4 h-4 shrink-0" />
+                      <span className="flex-1 text-left truncate">{page.label}</span>
+                      {hasSubPages && <ChevronRight className="w-3 h-3 opacity-50" />}
+                    </button>
                   </li>
                 );
               })}
             </ul>
           )}
 
-          {/* Estado 3: Expanded - drawer com ícones + labels das subpáginas */}
-          {state === 'expanded' && (
-            <div className="px-3 space-y-4">
-              {navGroups.map((group) => (
-                <div key={group.key}>
-                  <h3 className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
-                    {group.label}
-                  </h3>
-                  <ul className="space-y-0.5">
-                    {group.items.map((item) => {
-                      const isActive = isItemActive(item.href);
-                      return (
-                        <li key={item.href}>
-                          <button
-                            onClick={() => handleItemClick(item.href)}
-                            className={cn(
-                              'flex items-center gap-3 w-full h-8 px-3 rounded-md transition-all duration-150 text-sm text-left',
-                              isActive
-                                ? 'text-sidebar-primary bg-sidebar-accent'
-                                : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                            )}
-                          >
-                            <item.icon className="w-4 h-4 shrink-0" />
-                            <span className="truncate">{item.label}</span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Estado 4: Dual-Pane - grupos na barra principal (igual ao icons) */}
+          {/* Estado DUAL-PANE: ícones das páginas na barra principal */}
           {state === 'dual-pane' && (
             <ul className="space-y-1 px-2">
-              {navGroups.map((group) => {
-                const isActive = isGroupActive(group);
-                const isOpen = activeGroup === group.key;
+              {navPages.map((page) => {
+                const isActive = activeGroup === page.key;
+                const isCurrentRoute = isPageActive(page.href) || (page.subPages?.some(s => isPageActive(s.href)));
                 return (
-                  <li key={group.key}>
+                  <li key={page.key}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <IconButton
-                          onClick={() => setActiveGroup(group.key)}
+                          onClick={() => {
+                            if (page.subPages && page.subPages.length > 0) {
+                              setActiveGroup(page.key);
+                            } else {
+                              navigate(page.href);
+                            }
+                          }}
                           className={cn(
-                            'flex items-center justify-center w-full h-9 rounded-md transition-all duration-150',
-                            isOpen
+                            'flex items-center justify-center w-full h-9 rounded-md transition-colors',
+                            isActive
                               ? 'text-sidebar-primary bg-sidebar-accent'
-                              : isActive
+                              : isCurrentRoute
                                 ? 'text-sidebar-primary'
                                 : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
                           )}
                         >
-                          <group.icon className="w-[18px] h-[18px]" />
+                          <page.icon className="w-4 h-4" />
                         </IconButton>
                       </TooltipTrigger>
-                      <TooltipContent side="right" sideOffset={10}>
-                        {group.label}
-                      </TooltipContent>
+                      <TooltipContent side="right" sideOffset={8}>{page.label}</TooltipContent>
                     </Tooltip>
                   </li>
                 );
@@ -349,11 +379,8 @@ export function Sidebar() {
           )}
         </nav>
 
-        {/* Footer Icons */}
-        <div className={cn(
-          'py-3 space-y-1 shrink-0',
-          state === 'expanded' ? 'px-3' : 'px-2'
-        )}>
+        {/* Footer */}
+        <div className={cn('py-2 space-y-0.5 shrink-0', state === 'expanded' ? 'px-2' : 'px-2')}>
           {state === 'expanded' ? (
             <>
               <button
@@ -378,213 +405,123 @@ export function Sidebar() {
                 <TooltipTrigger asChild>
                   <IconButton
                     onClick={toggleTheme}
-                    className="flex items-center justify-center w-full h-9 rounded-md transition-colors text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                    className="flex items-center justify-center w-full h-8 rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
                   >
-                    {theme === 'light' ? <Moon className="w-[18px] h-[18px]" /> : <Sun className="w-[18px] h-[18px]" />}
+                    {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                   </IconButton>
                 </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={10}>
-                  {theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
-                </TooltipContent>
+                <TooltipContent side="right" sideOffset={8}>{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</TooltipContent>
               </Tooltip>
-
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <IconButton className="flex items-center justify-center w-full h-9 rounded-md transition-colors text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent">
-                    <HelpCircle className="w-[18px] h-[18px]" />
+                  <IconButton className="flex items-center justify-center w-full h-8 rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+                    <HelpCircle className="w-4 h-4" />
                   </IconButton>
                 </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={10}>
-                  Ajuda
-                </TooltipContent>
+                <TooltipContent side="right" sideOffset={8}>Ajuda</TooltipContent>
               </Tooltip>
-
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <IconButton className="flex items-center justify-center w-full h-9 rounded-md transition-colors text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent">
-                    <Bell className="w-[18px] h-[18px]" />
+                  <IconButton className="flex items-center justify-center w-full h-8 rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+                    <Bell className="w-4 h-4" />
                   </IconButton>
                 </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={10}>
-                  Notificações
-                </TooltipContent>
+                <TooltipContent side="right" sideOffset={8}>Notificações</TooltipContent>
               </Tooltip>
             </>
           )}
         </div>
 
-        {/* User Avatar */}
-        <div className={cn(
-          'py-3 shrink-0',
-          state === 'expanded' ? 'px-3' : 'px-2 flex justify-center'
-        )}>
+        {/* User */}
+        <div className={cn('py-3 shrink-0', state === 'expanded' ? 'px-2' : 'flex justify-center')}>
           {state === 'expanded' ? (
             <button
               onClick={signOut}
               className="flex items-center gap-3 w-full h-9 px-3 rounded-md text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
             >
-              <div className="relative">
-                <Avatar className="h-7 w-7">
-                  <AvatarImage src="" />
-                  <AvatarFallback className="bg-amber-100 text-amber-800 text-xs font-medium">
-                    {userInitials}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-blue-500 border-2 border-sidebar rounded-full" />
-              </div>
+              <Avatar className="h-6 w-6">
+                <AvatarImage src="" />
+                <AvatarFallback className="bg-amber-100 text-amber-800 text-xs font-medium">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
               <span className="truncate">{user?.email?.split('@')[0] || 'Usuário'}</span>
             </button>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <IconButton
-                  onClick={signOut}
-                  className="flex items-center justify-center"
-                >
-                  <div className="relative">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="" />
-                      <AvatarFallback className="bg-amber-100 text-amber-800 text-sm font-medium">
-                        {userInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-500 border-2 border-sidebar rounded-full" />
-                  </div>
+                <IconButton onClick={signOut} className="flex items-center justify-center">
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage src="" />
+                    <AvatarFallback className="bg-amber-100 text-amber-800 text-xs font-medium">
+                      {userInitials}
+                    </AvatarFallback>
+                  </Avatar>
                 </IconButton>
               </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={10}>
-                <div className="text-center">
-                  <p className="font-medium">{user?.email?.split('@')[0] || 'Usuário'}</p>
-                  <p className="text-xs text-muted-foreground">Clique para sair</p>
-                </div>
+              <TooltipContent side="right" sideOffset={8}>
+                <p className="font-medium">{user?.email?.split('@')[0] || 'Usuário'}</p>
+                <p className="text-xs text-muted-foreground">Clique para sair</p>
               </TooltipContent>
             </Tooltip>
           )}
         </div>
       </aside>
 
-      {/* Secondary Panel for Dual-Pane state */}
+      {/* Secondary Panel (Dual-Pane) */}
       <aside
         className={cn(
-          'fixed left-[60px] top-0 z-30 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 ease-out hidden lg:flex overflow-hidden',
-          showSecondaryPanel ? 'w-[180px] opacity-100' : 'w-0 opacity-0 pointer-events-none'
+          'fixed left-14 top-0 z-30 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 ease-out hidden lg:flex overflow-hidden',
+          showSecondaryPanel ? 'w-48 opacity-100' : 'w-0 opacity-0 pointer-events-none'
         )}
       >
-        {/* Logo Text */}
-        <div className="flex items-center h-14 px-4 shrink-0">
-          <img 
-            src="/images/logo-jmario.png" 
-            alt="J.Mario" 
-            className="h-5 w-auto"
-          />
-        </div>
+        {selectedPage && (
+          <>
+            {/* Header */}
+            <div className="h-14 flex items-center justify-between px-4 shrink-0 border-b border-sidebar-border/50">
+              <span className="text-sm font-medium text-sidebar-foreground">{selectedPage.label}</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <IconButton
+                    onClick={handleLockToggle}
+                    className="flex items-center justify-center w-6 h-6 rounded text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors"
+                  >
+                    {locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                  </IconButton>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}>
+                  {locked ? 'Desbloquear' : 'Bloquear aberto'}
+                </TooltipContent>
+              </Tooltip>
+            </div>
 
-        {/* Group Title */}
-        <div className="px-4 py-2 shrink-0">
-          <h3 className="text-sm font-medium text-sidebar-foreground capitalize">
-            {navGroups.find(g => g.key === activeGroup)?.label}
-          </h3>
-        </div>
-
-        {/* Categories List */}
-        <div className="px-4 py-2 space-y-0.5 shrink-0">
-          {navGroups.map((group) => {
-            const isSelected = group.key === activeGroup;
-            const isActive = isGroupActive(group);
-            return (
-              <button
-                key={group.key}
-                onClick={() => setActiveGroup(group.key)}
-                className={cn(
-                  'flex items-center justify-between w-full py-1.5 text-sm font-medium transition-colors text-left',
-                  isSelected
-                    ? 'text-sidebar-foreground'
-                    : 'text-sidebar-foreground/50 hover:text-sidebar-foreground'
-                )}
-              >
-                <span>{group.label}</span>
-                {isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-sidebar-primary" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Expand Menu Toggle */}
-        <div className="px-4 py-3 shrink-0">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-sidebar-foreground/50">expandir menu</span>
-            <Switch 
-              checked={locked}
-              onCheckedChange={handleLockToggle}
-              className="scale-[0.65] data-[state=checked]:bg-sidebar-primary"
-            />
-          </div>
-        </div>
-
-        {/* Secondary Links */}
-        <div className="px-4 py-2 space-y-0.5 shrink-0">
-          <Link
-            to="/configuracoes"
-            className={cn(
-              'flex items-center gap-2 py-1.5 text-sm transition-colors',
-              location.pathname === '/configuracoes'
-                ? 'text-sidebar-primary'
-                : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
-            )}
-          >
-            <Settings className="w-4 h-4" />
-            <span>configurações</span>
-          </Link>
-          <button className="flex items-center gap-2 py-1.5 text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors">
-            <Lightbulb className="w-4 h-4" />
-            <span>canal de ideias</span>
-          </button>
-          <button className="flex items-center gap-2 py-1.5 text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors">
-            <MessageCircle className="w-4 h-4" />
-            <span>suporte</span>
-          </button>
-        </div>
-
-        {/* Subitems of active group */}
-        <nav className="flex-1 px-4 py-3 overflow-y-auto overflow-x-hidden scrollbar-hidden border-t border-sidebar-border">
-          {activeGroup && (
-            <ul className="space-y-0.5">
-              {navGroups.find(g => g.key === activeGroup)?.items.map((item) => {
-                const isActive = isItemActive(item.href);
-                return (
-                  <li key={item.href}>
-                    <button
-                      onClick={() => handleItemClick(item.href)}
-                      className={cn(
-                        'flex items-center gap-2 w-full py-2 text-sm text-left transition-all duration-150',
-                        isActive
-                          ? 'text-sidebar-primary'
-                          : 'text-sidebar-foreground/70 hover:text-sidebar-foreground'
-                      )}
-                    >
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </nav>
+            {/* Sub-pages */}
+            <nav className="flex-1 py-3 px-2 overflow-y-auto">
+              <ul className="space-y-0.5">
+                {selectedPage.subPages?.map((sub) => {
+                  const isActive = location.pathname === sub.href;
+                  return (
+                    <li key={sub.href}>
+                      <button
+                        onClick={() => handleSubPageClick(sub.href)}
+                        className={cn(
+                          'flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-sm transition-colors',
+                          isActive
+                            ? 'text-sidebar-primary bg-sidebar-accent'
+                            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                        )}
+                      >
+                        <sub.icon className="w-4 h-4 shrink-0" />
+                        <span className="truncate">{sub.label}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+          </>
+        )}
       </aside>
-
-      {/* Overlay para fechar o menu quando clicar fora (apenas dual-pane não travado) */}
-      {state === 'dual-pane' && activeGroup && !locked && (
-        <div 
-          className="fixed inset-0 z-20 hidden lg:block" 
-          onClick={() => {
-            setActiveGroup(null);
-            setState('icons');
-          }}
-        />
-      )}
     </>
   );
 }

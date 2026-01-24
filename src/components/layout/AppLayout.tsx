@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { MobileNav } from './MobileNav';
 import { useSidebarContext } from '@/contexts/SidebarContext';
 
 interface AppLayoutProps {
@@ -8,37 +9,31 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { state, activeGroup, locked } = useSidebarContext();
+  const { state, activeGroup } = useSidebarContext();
 
   // Calcular margin-left baseado no estado da sidebar
   const getMarginLeft = () => {
     switch (state) {
       case 'minimal':
-        return 'lg:ml-[48px]';
+        return 'lg:ml-12'; // 48px
       case 'icons':
-        return 'lg:ml-[60px]';
+        return 'lg:ml-14'; // 56px
       case 'expanded':
-        return 'lg:ml-[220px]';
+        return 'lg:ml-56'; // 224px
       case 'dual-pane':
-        // Se tem painel secundário aberto (com grupo ativo)
-        if (activeGroup) {
-          return 'lg:ml-[240px]'; // 60px + 180px
-        }
-        return 'lg:ml-[60px]';
+        // 56px + 192px = 248px se painel aberto
+        return activeGroup ? 'lg:ml-[248px]' : 'lg:ml-14';
       default:
-        return 'lg:ml-[60px]';
+        return 'lg:ml-14';
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
+      <MobileNav />
       
-      {/* Main content */}
-      <div className={cn(
-        "transition-all duration-200",
-        getMarginLeft()
-      )}>
+      <div className={cn('transition-all duration-200', getMarginLeft())}>
         <Header />
         <main id="main-content" className="p-4 lg:p-6" role="main" aria-label="Conteúdo principal">
           {children}
