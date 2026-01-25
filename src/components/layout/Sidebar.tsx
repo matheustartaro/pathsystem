@@ -342,25 +342,7 @@ export function Sidebar() {
                 'flex flex-col py-4',
                 phase === 4 ? 'w-[220px] border-r border-border/50' : 'w-full'
               )}>
-                {/* Logo alinhado com os itens */}
-                <div className="px-5 mb-4">
-                  <img src="/images/logo-jmario.png" alt="J.Mario" className="h-5 w-auto" />
-                </div>
-                
-                {/* Botão Hambúrguer alinhado com os módulos */}
-                <div className="px-3 mb-2">
-                  <button
-                    onClick={toggleSidebar}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-accent text-foreground text-sm font-medium w-full"
-                  >
-                    <Menu size={16} />
-                    <span>{currentModule.label}</span>
-                    <span className="ml-auto text-muted-foreground">•</span>
-                  </button>
-                </div>
-
-                {/* Lista de Módulos */}
-                <div className="flex-1 overflow-y-auto px-3 space-y-0.5">
+                <div className="flex-1 overflow-y-auto px-3 pt-2 space-y-0.5">
                   {modules.map(mod => (
                     <button
                       key={mod.id}
