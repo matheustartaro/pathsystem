@@ -48,30 +48,10 @@ interface NavModule {
 // Módulos com sub-itens
 const modules: NavModule[] = [
   { 
-    id: 'inicio', 
-    label: 'Início', 
+    id: 'dashboard', 
+    label: 'Dashboard', 
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, href: '/' },
-      { id: 'agenda', label: 'Agenda', icon: CalendarDays, href: '/agenda' },
-      { id: 'clientes', label: 'Clientes', icon: UsersRound, href: '/clientes' },
-    ]
-  },
-  { 
-    id: 'catalogo', 
-    label: 'Catálogo', 
-    items: [
-      { id: 'produtos', label: 'Produtos', icon: BoxIcon, href: '/catalogo/produtos' },
-      { id: 'servicos', label: 'Serviços', icon: HandCoins, href: '/catalogo/servicos' },
-      { id: 'precos', label: 'Tabela de Preços', icon: Tags, href: '/catalogo/precos' },
-    ]
-  },
-  { 
-    id: 'comercial', 
-    label: 'Comercial', 
-    items: [
-      { id: 'orcamentos', label: 'Orçamentos', icon: FileText, href: '/orcamentos' },
-      { id: 'projetos', label: 'Projetos', icon: Layers, href: '/projetos' },
-      { id: 'cronograma', label: 'Cronograma', icon: CalendarRange, href: '/gantt' },
     ]
   },
   { 
@@ -81,6 +61,38 @@ const modules: NavModule[] = [
       { id: 'fluxo', label: 'Fluxo de Caixa', icon: ArrowUpDown, href: '/financeiro/fluxo-caixa' },
       { id: 'contas', label: 'Contas', icon: Landmark, href: '/financeiro/contas' },
       { id: 'relatorios', label: 'Relatórios', icon: BarChart3, href: '/relatorios' },
+    ]
+  },
+  { 
+    id: 'projetos', 
+    label: 'Projetos', 
+    items: [
+      { id: 'projetos', label: 'Projetos', icon: Layers, href: '/projetos' },
+      { id: 'cronograma', label: 'Cronograma', icon: CalendarRange, href: '/gantt' },
+    ]
+  },
+  { 
+    id: 'catalogo', 
+    label: 'Catálogo', 
+    items: [
+      { id: 'servicos', label: 'Serviços', icon: HandCoins, href: '/catalogo/servicos' },
+      { id: 'produtos', label: 'Produtos', icon: BoxIcon, href: '/catalogo/produtos' },
+      { id: 'precos', label: 'Tabela de Preços', icon: Tags, href: '/catalogo/precos' },
+    ]
+  },
+  { 
+    id: 'ferramentas', 
+    label: 'Ferramentas', 
+    items: [
+      { id: 'agenda', label: 'Agenda', icon: CalendarDays, href: '/agenda' },
+      { id: 'orcamentos', label: 'Orçamentos', icon: FileText, href: '/orcamentos' },
+    ]
+  },
+  { 
+    id: 'clientes', 
+    label: 'Clientes', 
+    items: [
+      { id: 'clientes', label: 'Clientes', icon: UsersRound, href: '/clientes' },
     ]
   },
 ];
