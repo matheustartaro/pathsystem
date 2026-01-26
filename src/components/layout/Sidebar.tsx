@@ -245,7 +245,7 @@ export function Sidebar() {
         )}>
           
           {/* Área superior */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col bg-muted/50">
             {/* Hambúrguer no topo, alinhado com primeiro item do menu */}
             <div className="shrink-0 py-2 px-2">
               <button 
