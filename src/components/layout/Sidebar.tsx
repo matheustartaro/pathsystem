@@ -232,7 +232,7 @@ export function Sidebar() {
         initial={false}
         animate={{ width: sidebarWidth }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="h-full bg-card border-r border-border flex z-50 fixed left-0 top-0 bottom-0 hidden lg:flex"
+        className="h-full bg-card flex z-50 fixed left-0 top-0 bottom-0 hidden lg:flex"
         style={{
           boxShadow: phase >= 3 ? '0 0 60px -15px hsl(var(--foreground) / 0.1)' : 'none'
         }}
@@ -241,7 +241,7 @@ export function Sidebar() {
         {/* COLUNA ESQUERDA - Ícones */}
         <div className={cn(
           'flex flex-col h-full transition-all duration-300',
-          phase >= 3 ? 'w-[60px] border-r border-border/50' : 'w-full'
+          phase >= 3 ? 'w-[60px]' : 'w-full'
         )}>
           
           {/* Hambúrguer no topo, alinhado com primeiro item do menu */}
@@ -310,7 +310,7 @@ export function Sidebar() {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[hsl(var(--status-info))] rounded-full" />
             </button>
 
-            <div className="w-5 h-px bg-border" />
+            
 
             {/* Perfil */}
             <Avatar className="h-8 w-8">
@@ -334,7 +334,7 @@ export function Sidebar() {
               {/* COLUNA: MÓDULOS (Fase 3) */}
               <div className={cn(
                 'flex flex-col py-4',
-                phase === 4 ? 'w-[220px] border-r border-border/50' : 'w-full'
+                phase === 4 ? 'w-[220px]' : 'w-full'
               )}>
                 {/* Logo acima dos menus */}
                 <div className="px-4 pb-6 pt-2">
@@ -362,7 +362,7 @@ export function Sidebar() {
                 </div>
                 
                 {/* FOOTER FASE 3 */}
-                <div className="px-3 pt-3 mt-auto border-t border-border/50 space-y-1">
+                <div className="px-3 pt-3 mt-auto space-y-1">
                   <div className="flex items-center justify-between px-3 py-2">
                     <span className="text-xs text-muted-foreground">
                       expandir menu
