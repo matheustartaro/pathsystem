@@ -287,7 +287,7 @@ export function Sidebar() {
           {phase >= 3 && <div className="flex-1" />}
 
           {/* FOOTER: Ações do Sistema */}
-          <div className="mt-auto shrink-0 flex flex-col py-4 gap-3 items-center">
+          <div className="mt-auto shrink-0 flex flex-col py-4 gap-3 items-center bg-muted/50">
 
             <button 
               onClick={toggleTheme}
