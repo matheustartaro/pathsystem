@@ -244,51 +244,50 @@ export function Sidebar() {
           phase >= 3 ? 'w-[60px]' : 'w-full'
         )}>
           
-          {/* Hambúrguer no topo, alinhado com primeiro item do menu */}
-          <div className="shrink-0 py-2 px-2">
-            <button 
-              onClick={toggleSidebar}
-              className={cn(
-                'w-full flex items-center justify-center h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
-                phase >= 3 ? 'bg-accent text-foreground' : ''
-              )}
-              title="Menu Global"
-            >
-              {phase >= 3 ? <X size={20} /> : <Menu size={20} />}
-            </button>
+          {/* Área superior */}
+          <div className="flex-1 flex flex-col">
+            {/* Hambúrguer no topo, alinhado com primeiro item do menu */}
+            <div className="shrink-0 py-2 px-2">
+              <button 
+                onClick={toggleSidebar}
+                className={cn(
+                  'w-full flex items-center justify-center h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
+                  phase >= 3 ? 'bg-accent text-foreground' : ''
+                )}
+                title="Menu Global"
+              >
+                {phase >= 3 ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
+
+            {/* CONTEÚDO DA FASE 1 - Ícones do módulo atual */}
+            {phase === 1 && (
+              <div className="flex-1 overflow-y-auto py-2 px-2 space-y-1 scrollbar-hidden">
+                {currentModule.items.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleItemClick(item.href)}
+                    className={cn(
+                      'w-full flex items-center justify-center h-10 rounded-lg transition-all group relative',
+                      activeItemId === item.id 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                    )}
+                  >
+                    <item.icon size={20} strokeWidth={activeItemId === item.id ? 2.5 : 2} className="shrink-0" />
+                    
+                    {/* Tooltip */}
+                    <div className="absolute left-14 bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap shadow-lg border border-border">
+                      {item.label}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* CONTEÚDO DA FASE 1 - Ícones do módulo atual */}
-          {phase === 1 && (
-            <div className="flex-1 overflow-y-auto py-2 px-2 space-y-1 scrollbar-hidden">
-              {currentModule.items.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => handleItemClick(item.href)}
-                  className={cn(
-                    'w-full flex items-center justify-center h-10 rounded-lg transition-all group relative',
-                    activeItemId === item.id 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                  )}
-                >
-                  <item.icon size={20} strokeWidth={activeItemId === item.id ? 2.5 : 2} className="shrink-0" />
-                  
-                  {/* Tooltip */}
-                  <div className="absolute left-14 bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap shadow-lg border border-border">
-                    {item.label}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Spacer se estiver na Fase 3/4 */}
-          {phase >= 3 && <div className="flex-1" />}
-
-          {/* FOOTER: Ações do Sistema */}
-          <div className="mt-auto shrink-0 flex flex-col py-4 gap-3 items-center bg-muted/50">
-
+          {/* FOOTER: Ações do Sistema - Faixa cinza */}
+          <div className="shrink-0 flex flex-col py-4 gap-3 items-center bg-muted/50 w-full">
             <button 
               onClick={toggleTheme}
               className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" 
@@ -309,8 +308,6 @@ export function Sidebar() {
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[hsl(var(--status-info))] rounded-full" />
             </button>
-
-            
 
             {/* Perfil */}
             <Avatar className="h-8 w-8">
