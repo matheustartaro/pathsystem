@@ -244,11 +244,18 @@ export function Sidebar() {
           phase >= 3 ? 'w-[60px] border-r border-border/50' : 'w-full'
         )}>
           
-          {/* HEADER: LOGO */}
-          <div className="h-[60px] shrink-0 flex items-center justify-center">
-            <Link to="/">
-              <img src="/images/icon-jmario.png" alt="J.Mario" className="h-7 w-7 object-contain" />
-            </Link>
+          {/* Hambúrguer no topo, alinhado com primeiro item do menu */}
+          <div className="shrink-0 py-2 px-2">
+            <button 
+              onClick={toggleSidebar}
+              className={cn(
+                'w-full flex items-center justify-center h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
+                phase >= 3 ? 'bg-accent text-foreground' : ''
+              )}
+              title="Menu Global"
+            >
+              {phase >= 3 ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
 
           {/* CONTEÚDO DA FASE 1 - Ícones do módulo atual */}
@@ -278,20 +285,6 @@ export function Sidebar() {
 
           {/* Spacer se estiver na Fase 3/4 */}
           {phase >= 3 && <div className="flex-1" />}
-
-          {/* Hambúrguer alinhado com primeiro item do menu */}
-          <div className="shrink-0 flex flex-col items-center mt-6 mb-2">
-            <button 
-              onClick={toggleSidebar}
-              className={cn(
-                'w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
-                phase >= 3 ? 'bg-accent text-foreground' : ''
-              )}
-              title="Menu Global"
-            >
-              {phase >= 3 ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
 
           {/* FOOTER: Ações do Sistema */}
           <div className="mt-auto shrink-0 flex flex-col py-4 gap-3 items-center">
