@@ -279,9 +279,8 @@ export function Sidebar() {
           {/* Spacer se estiver na Fase 3/4 */}
           {phase >= 3 && <div className="flex-1" />}
 
-          {/* FOOTER: Ações do Sistema */}
-          <div className="mt-auto shrink-0 flex flex-col py-4 gap-3 items-center">
-            {/* Hambúrguer */}
+          {/* Hambúrguer alinhado com primeiro item do menu */}
+          <div className="shrink-0 flex flex-col items-center mt-6 mb-2">
             <button 
               onClick={toggleSidebar}
               className={cn(
@@ -292,8 +291,10 @@ export function Sidebar() {
             >
               {phase >= 3 ? <X size={20} /> : <Menu size={20} />}
             </button>
+          </div>
 
-            <div className="w-5 h-px bg-border" />
+          {/* FOOTER: Ações do Sistema */}
+          <div className="mt-auto shrink-0 flex flex-col py-4 gap-3 items-center">
 
             <button 
               onClick={toggleTheme}
@@ -342,7 +343,12 @@ export function Sidebar() {
                 'flex flex-col py-4',
                 phase === 4 ? 'w-[220px] border-r border-border/50' : 'w-full'
               )}>
-                <div className="flex-1 overflow-y-auto px-3 pt-2 space-y-0.5">
+                {/* Logo acima dos menus */}
+                <div className="px-4 pb-6 pt-2">
+                  <img src="/images/logo-jmario.png" alt="J.Mario" className="h-6 object-contain" />
+                </div>
+                
+                <div className="flex-1 overflow-y-auto px-3 space-y-0.5">
                   {modules.map(mod => (
                     <button
                       key={mod.id}
