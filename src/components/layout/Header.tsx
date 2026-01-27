@@ -13,8 +13,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { open } = useGlobalSearch();
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="flex items-center justify-between h-full px-4 lg:px-6">
+    <header className="sticky top-0 z-30 h-12 bg-background/80 backdrop-blur-md border-b border-border">
+      <div className="flex items-center justify-between h-full px-3 lg:px-4">
         {/* Mobile Menu */}
         <div className="lg:hidden">
           <Sheet>

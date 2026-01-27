@@ -15,9 +15,9 @@ export function ProjectActivitySection({ projectId }: ProjectActivitySectionProp
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Clock className="w-5 h-5" />
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <Clock className="w-4 h-4" />
           Atividades
         </CardTitle>
       </CardHeader>
@@ -27,30 +27,30 @@ export function ProjectActivitySection({ projectId }: ProjectActivitySectionProp
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         ) : activities.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <Clock className="w-12 h-12 text-muted-foreground mb-2" />
-            <p className="text-muted-foreground text-sm">Nenhuma atividade registrada</p>
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <Clock className="w-10 h-10 text-muted-foreground mb-2" />
+            <p className="text-muted-foreground text-xs">Nenhuma atividade registrada</p>
           </div>
         ) : (
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[300px] pr-3">
             <div className="relative">
               {/* Timeline line */}
               <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
 
               <div className="space-y-4">
                 {activities.map((activity, index) => (
-                  <div key={activity.id} className="relative flex gap-4">
+                  <div key={activity.id} className="relative flex gap-3">
                     {/* Timeline dot */}
                     <div className={cn(
-                      'relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-background border-2',
+                      'relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-background border-2',
                       getActivityColor(activity.tipo).replace('text-', 'border-')
                     )}>
-                      <span className="text-sm">{getActivityIcon(activity.tipo)}</span>
+                      <span className="text-xs">{getActivityIcon(activity.tipo)}</span>
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 pb-4">
-                      <div className="bg-muted/50 rounded-lg p-3">
+                    <div className="flex-1 pb-3">
+                      <div className="bg-muted/50 rounded-lg p-2">
                         <p className="text-sm text-foreground">{activity.descricao}</p>
                         <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                           {activity.user_name && (

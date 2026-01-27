@@ -181,11 +181,11 @@ export default function ClientesPage() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Clientes</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-lg font-bold text-foreground">Clientes</h1>
+            <p className="text-xs text-muted-foreground">
               {filteredClientes.length} cliente{filteredClientes.length !== 1 ? 's' : ''} encontrado{filteredClientes.length !== 1 ? 's' : ''}
             </p>
           </div>
@@ -202,35 +202,35 @@ export default function ClientesPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Clientes</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-xs font-medium">Total de Clientes</CardTitle>
               <Users className="h-4 w-4 text-primary" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{clientes.length}</div>
+            <CardContent className="pt-0">
+              <div className="text-xl font-bold">{clientes.length}</div>
               <p className="text-xs text-muted-foreground">Cadastrados</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Com Origem</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-xs font-medium">Com Origem</CardTitle>
               <UserCheck className="h-4 w-4 text-[hsl(var(--status-success))]" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-[hsl(var(--status-success))]">
+            <CardContent className="pt-0">
+              <div className="text-xl font-bold text-[hsl(var(--status-success))]">
                 {clientes.filter(c => c.origem).length}
               </div>
               <p className="text-xs text-muted-foreground">Rastreados</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Por Origem</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-xs font-medium">Por Origem</CardTitle>
               <MapPin className="h-4 w-4 text-primary" />
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <div className="flex flex-wrap gap-1">
                 {Object.entries(origemStats).slice(0, 4).map(([origem, count]) => (
                   <Badge key={origem} variant="secondary" className="text-xs">

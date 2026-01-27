@@ -44,7 +44,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         className="min-h-screen hidden lg:block"
       >
         <Header />
-        <main id="main-content" className="p-4 lg:p-6" role="main" aria-label="Conteúdo principal">
+        <main id="main-content" className="p-3 lg:p-4" role="main" aria-label="Conteúdo principal">
           {children}
         </main>
       </motion.div>
@@ -52,7 +52,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Mobile layout (sem sidebar animada) */}
       <div className="min-h-screen lg:hidden">
         <Header />
-        <main id="main-content-mobile" className="p-4" role="main" aria-label="Conteúdo principal">
+        <main id="main-content-mobile" className="p-3" role="main" aria-label="Conteúdo principal">
           {children}
         </main>
       </div>
