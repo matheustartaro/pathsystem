@@ -17,10 +17,10 @@ export function GanttMobileList({ projects }: GanttMobileListProps) {
 
   return (
     <div className="bg-card rounded-lg border border-border shadow-card overflow-hidden animate-fade-in">
-      <div className="p-4 border-b border-border bg-muted/30">
+      <div className="p-3 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Calendar className="w-5 h-5" />
-          <span className="text-sm font-medium">
+          <Calendar className="w-4 h-4" />
+          <span className="text-xs font-medium">
             Para uma visualização completa do Gantt, use a versão desktop.
           </span>
         </div>
@@ -31,15 +31,15 @@ export function GanttMobileList({ projects }: GanttMobileListProps) {
           <Link
             key={project.id}
             to={`/projetos/${project.id}`}
-            className="flex items-center gap-4 p-4 hover:bg-accent/50 transition-colors"
+            className="flex items-center gap-3 p-3 hover:bg-accent/50 transition-colors"
           >
             <div
-              className="w-2 h-14 rounded-full flex-shrink-0"
+              className="w-1.5 h-12 rounded-full flex-shrink-0"
               style={{ backgroundColor: project.cor }}
             />
-            <div className="flex-1 min-w-0 space-y-1">
-              <p className="font-medium text-card-foreground truncate">{project.nome}</p>
-              <p className="text-sm text-muted-foreground truncate">{project.cliente}</p>
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <p className="font-medium text-sm text-card-foreground truncate">{project.nome}</p>
+              <p className="text-xs text-muted-foreground truncate">{project.cliente}</p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>
                   {format(project.dataInicio, "dd MMM", { locale: ptBR })} →{' '}

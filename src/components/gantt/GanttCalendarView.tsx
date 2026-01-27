@@ -59,21 +59,21 @@ export function GanttCalendarView({ projects, onEditProject, onAddTask, onToggle
 
   return (
     <>
-      <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden animate-fade-in">
+      <div className="bg-card rounded-lg border border-border shadow-card overflow-hidden animate-fade-in">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-3 border-b border-border">
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => navigateMonth('prev')}>
+            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => navigateMonth('prev')}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={() => navigateMonth('next')}>
+            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => navigateMonth('next')}>
               <ChevronRight className="w-4 h-4" />
             </Button>
-            <span className="text-lg font-semibold text-foreground capitalize ml-2">
+            <span className="text-sm font-semibold text-foreground capitalize ml-2">
               {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground">Entregas do mês</p>
+          <p className="text-xs text-muted-foreground">Entregas do mês</p>
         </div>
 
         {/* Week days header */}
@@ -89,7 +89,7 @@ export function GanttCalendarView({ projects, onEditProject, onAddTask, onToggle
         <div className="grid grid-cols-7">
           {/* Padding days */}
           {Array.from({ length: paddingDays }).map((_, i) => (
-            <div key={`pad-${i}`} className="min-h-24 p-2 border-b border-r border-border bg-muted/20" />
+            <div key={`pad-${i}`} className="min-h-20 p-1.5 border-b border-r border-border bg-muted/20" />
           ))}
 
           {/* Actual days */}
@@ -101,7 +101,7 @@ export function GanttCalendarView({ projects, onEditProject, onAddTask, onToggle
               <div
                 key={day.toISOString()}
                 className={cn(
-                  "min-h-24 p-2 border-b border-r border-border transition-colors",
+                  "min-h-20 p-1.5 border-b border-r border-border transition-colors",
                   isToday && "bg-primary/5"
                 )}
               >

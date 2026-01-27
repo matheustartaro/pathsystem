@@ -27,10 +27,10 @@ export default function RelatoriosPage() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
-          <p className="text-muted-foreground">Análise completa do seu negócio</p>
+          <h1 className="text-lg font-bold text-foreground">Relatórios</h1>
+          <p className="text-xs text-muted-foreground">Análise completa do seu negócio</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

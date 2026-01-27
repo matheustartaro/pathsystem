@@ -145,10 +145,10 @@ const Dashboard = () => {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground">Visão geral do seu negócio</p>
+            <h1 className="text-lg font-bold text-foreground">Dashboard</h1>
+            <p className="text-xs text-muted-foreground">Visão geral do seu negócio</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -245,31 +245,31 @@ const Dashboard = () => {
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
             title="Projetos Ativos"
             value={stats.emAndamento}
-            icon={<FolderKanban className="w-6 h-6" />}
+            icon={<FolderKanban className="w-4 h-4" />}
           />
           <StatCard
             title={`Receitas ${periodLabel}`}
             value={formatCurrency(financialSummary.receitas)}
-            icon={<TrendingUp className="w-6 h-6 text-green-500" />}
+            icon={<TrendingUp className="w-4 h-4 text-green-500" />}
           />
           <StatCard
             title={`Despesas ${periodLabel}`}
             value={formatCurrency(financialSummary.despesas)}
-            icon={<TrendingDown className="w-6 h-6 text-destructive" />}
+            icon={<TrendingDown className="w-4 h-4 text-destructive" />}
           />
           <StatCard
             title={`Saldo ${periodLabel}`}
             value={formatCurrency(financialSummary.saldo)}
-            icon={<DollarSign className={`w-6 h-6 ${financialSummary.saldo >= 0 ? 'text-green-500' : 'text-destructive'}`} />}
+            icon={<DollarSign className={`w-4 h-4 ${financialSummary.saldo >= 0 ? 'text-green-500' : 'text-destructive'}`} />}
           />
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Recent Projects */}
           <Card className="lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
