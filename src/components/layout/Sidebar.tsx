@@ -327,7 +327,7 @@ export function Sidebar() {
                 </div>
                 
                 <div className="flex-1 overflow-y-auto space-y-0.5 px-[15px] bg-[#f2f2f2] py-[25px]">
-                  {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn('w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all text-sm', activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
+                  {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn("w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all text-base", activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
                       {mod.label}
                       {activeGroup === mod.id && phase === 4 && <ChevronRight size={14} className="text-muted-foreground" />}
                     </button>)}
@@ -365,11 +365,11 @@ export function Sidebar() {
             width: '260px'
           }} className="flex-1 flex flex-col bg-zinc-50 px-[15px] py-[62px]">
                   <div className="px-5 h-[32px] flex items-center mb-4">
-                    <h3 className="font-semibold text-foreground">{currentModule.label}</h3>
+                    <h3 className="font-semibold text-foreground text-base">{currentModule.label}</h3>
                   </div>
                   
                   <div className="px-3 space-y-0.5">
-                    {currentModule.items.map(item => <button key={item.id} onClick={() => handleSubItemClick(item.href)} className={cn('w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all flex items-center gap-3', activeItemId === item.id ? 'bg-card text-foreground font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50')}>
+                    {currentModule.items.map(item => <button key={item.id} onClick={() => handleSubItemClick(item.href)} className={cn("w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center gap-3 text-base", activeItemId === item.id ? 'bg-card text-foreground font-medium shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-card/50')}>
                         <item.icon size={16} />
                         {item.label}
                       </button>)}
