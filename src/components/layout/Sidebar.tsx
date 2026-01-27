@@ -323,11 +323,11 @@ export function Sidebar() {
               <div className={cn("flex flex-col py-4 bg-[#f2f2f2]", phase === 4 ? 'w-[220px]' : 'w-full')}>
                 {/* Logo acima dos menus */}
                 <div className="px-4 pb-6 pt-2 bg-[#f2f2f2]">
-                  <img alt="J.Mario" className="h-12 object-contain" src="/lovable-uploads/edda602f-2289-40ba-b6c6-b81038b7ba04.png" />
+                  <img alt="J.Mario" className="h-12 object-contain border-0" src="/lovable-uploads/edda602f-2289-40ba-b6c6-b81038b7ba04.png" />
                 </div>
                 
                 <div className="flex-1 overflow-y-auto space-y-0.5 px-[15px] bg-[#f2f2f2] py-[25px]">
-                  {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn("w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all text-lg", activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
+                  {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn("w-full text-left py-2.5 rounded-lg flex items-center justify-between transition-all text-lg px-0", activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
                       {mod.label}
                       {activeGroup === mod.id && phase === 4 && <ChevronRight size={14} className="text-muted-foreground" />}
                     </button>)}
