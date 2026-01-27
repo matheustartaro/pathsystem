@@ -363,7 +363,7 @@ export function Sidebar() {
           }} animate={{
             opacity: 1,
             width: '260px'
-          }} className="flex-1 bg-muted/30 flex flex-col py-4">
+          }} className="flex-1 flex flex-col py-4 bg-zinc-50 px-[15px]">
                   <div className="px-5 h-[32px] flex items-center mb-4">
                     <h3 className="font-semibold text-foreground">{currentModule.label}</h3>
                   </div>
