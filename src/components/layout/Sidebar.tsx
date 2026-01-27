@@ -263,7 +263,7 @@ export function Sidebar() {
         <div className={cn('flex flex-col h-full transition-all duration-300', phase >= 3 ? 'w-[60px]' : 'w-full')}>
           
           {/* Área superior */}
-          <div className="flex-1 flex flex-col bg-[#f2f2f2]">
+          <div className="flex-1 flex flex-col bg-[#f7f7f7]">
             {/* Hambúrguer no topo, alinhado com primeiro item do menu */}
             <div className="shrink-0 py-2 px-2">
               <button onClick={toggleSidebar} className={cn('w-full flex items-center justify-center h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors', phase >= 3 ? 'bg-accent text-foreground' : '')} title="Menu Global">
@@ -285,7 +285,7 @@ export function Sidebar() {
           </div>
 
           {/* FOOTER: Ações do Sistema - Faixa cinza */}
-          <div className="shrink-0 flex flex-col py-4 gap-3 items-center w-full bg-[#f2f2f2]">
+          <div className="shrink-0 flex flex-col py-4 gap-3 items-center w-full bg-[#f7f7f7]">
             <button onClick={toggleTheme} className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors text-[#1a1a19]" title="Tema">
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
@@ -320,13 +320,13 @@ export function Sidebar() {
           x: -20
         }} className="flex-1 flex overflow-hidden bg-card">
               {/* COLUNA: MÓDULOS (Fase 3) */}
-              <div className={cn("flex flex-col py-4 bg-[#f2f2f2]", phase === 4 ? 'w-[220px]' : 'w-full')}>
+              <div className={cn("flex flex-col py-4 bg-[#f7f7f7]", phase === 4 ? 'w-[220px]' : 'w-full')}>
                 {/* Logo acima dos menus */}
-                <div className="px-4 pb-6 pt-2 bg-[#f2f2f2]">
+                <div className="px-4 pb-6 pt-2 bg-[#f7f7f7]">
                   <img alt="J.Mario" className="h-12 object-contain border-0" src="/lovable-uploads/edda602f-2289-40ba-b6c6-b81038b7ba04.png" />
                 </div>
                 
-                <div className="flex-1 overflow-y-auto space-y-0.5 px-[15px] bg-[#f2f2f2] py-[25px]">
+                <div className="flex-1 overflow-y-auto space-y-0.5 px-[15px] py-[25px] bg-[#f7f7f7]">
                   {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn("w-full text-left py-2.5 rounded-lg flex items-center justify-between transition-all text-lg px-0 font-semibold text-[#1a1a19]", activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
                       {mod.label}
                       {activeGroup === mod.id && phase === 4 && <ChevronRight size={14} className="text-muted-foreground" />}
@@ -334,7 +334,7 @@ export function Sidebar() {
                 </div>
                 
                 {/* FOOTER FASE 3 */}
-                <div className="px-3 pt-3 mt-auto space-y-1 bg-[#f2f2f2] py-[13px] my-0">
+                <div className="px-3 pt-3 mt-auto space-y-1 py-[13px] my-0 bg-[#f7f7f7]">
                   <div className="flex items-center justify-between px-3 py-2">
                     <span className="text-xs text-[#1a1a19]">
                       expandir menu
