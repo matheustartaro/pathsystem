@@ -286,13 +286,13 @@ export function Sidebar() {
 
           {/* FOOTER: Ações do Sistema - Faixa cinza */}
           <div className="shrink-0 flex flex-col py-4 gap-3 items-center w-full bg-[#f2f2f2]">
-            <button onClick={toggleTheme} className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Tema">
+            <button onClick={toggleTheme} className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors text-[#1a1a19]" title="Tema">
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Ajuda">
+            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors text-[#1a1a19]" title="Ajuda">
               <HelpCircle size={20} />
             </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors relative" title="Notificações">
+            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors relative text-[#1a1a19]" title="Notificações">
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[hsl(var(--status-info))] rounded-full" />
             </button>
@@ -327,7 +327,7 @@ export function Sidebar() {
                 </div>
                 
                 <div className="flex-1 overflow-y-auto space-y-0.5 px-[15px] bg-[#f2f2f2] py-[25px]">
-                  {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn("w-full text-left py-2.5 rounded-lg flex items-center justify-between transition-all text-lg px-0", activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
+                  {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn("w-full text-left py-2.5 rounded-lg flex items-center justify-between transition-all text-lg px-0 font-semibold text-[#1a1a19]", activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
                       {mod.label}
                       {activeGroup === mod.id && phase === 4 && <ChevronRight size={14} className="text-muted-foreground" />}
                     </button>)}
@@ -336,7 +336,7 @@ export function Sidebar() {
                 {/* FOOTER FASE 3 */}
                 <div className="px-3 pt-3 mt-auto space-y-1 bg-[#f2f2f2] py-[13px] my-0">
                   <div className="flex items-center justify-between px-3 py-2">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-[#1a1a19]">
                       expandir menu
                     </span>
                     <button onClick={handleToggleLock} className={cn('w-9 h-5 rounded-full relative transition-colors', locked ? 'bg-foreground' : 'bg-muted')} title={locked ? "Destravar menu" : "Fixar menu aberto"}>
@@ -344,13 +344,13 @@ export function Sidebar() {
                     </button>
                   </div>
 
-                  <button onClick={() => handleItemClick('/configuracoes')} className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px]">
+                  <button onClick={() => handleItemClick('/configuracoes')} className="flex items-center gap-3 text-sm hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-[#1a1a19]">
                     <Settings size={16} /> configurações
                   </button>
-                  <button className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px]">
+                  <button className="flex items-center gap-3 text-sm hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-[#1a1a19]">
                     <Lightbulb size={16} /> canal de ideias
                   </button>
-                  <button className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px]">
+                  <button className="flex items-center gap-3 text-sm hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-[#1a1a19]">
                     <Headphones size={16} /> suporte
                   </button>
                 </div>
