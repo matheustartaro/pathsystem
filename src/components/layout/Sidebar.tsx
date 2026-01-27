@@ -334,7 +334,7 @@ export function Sidebar() {
                 </div>
                 
                 {/* FOOTER FASE 3 */}
-                <div className="px-3 pt-3 mt-auto space-y-1 bg-[#e8e8e8]">
+                <div className="px-3 pt-3 mt-auto space-y-1 bg-[#e8e8e8] py-px">
                   <div className="flex items-center justify-between px-3 py-2">
                     <span className="text-xs text-muted-foreground">
                       expandir menu
@@ -344,13 +344,13 @@ export function Sidebar() {
                     </button>
                   </div>
 
-                  <button onClick={() => handleItemClick('/configuracoes')} className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 py-2 rounded-lg transition-colors w-full text-left">
+                  <button onClick={() => handleItemClick('/configuracoes')} className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px]">
                     <Settings size={16} /> configurações
                   </button>
-                  <button className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 py-2 rounded-lg transition-colors w-full text-left">
+                  <button className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px]">
                     <Lightbulb size={16} /> canal de ideias
                   </button>
-                  <button className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 py-2 rounded-lg transition-colors w-full text-left">
+                  <button className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px]">
                     <Headphones size={16} /> suporte
                   </button>
                 </div>
