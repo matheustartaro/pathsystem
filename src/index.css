@@ -51,15 +51,14 @@
     --gantt-grid: 120 3% 92%;
     --gantt-today: 0 84% 60%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 15%;
-    --sidebar-primary: 217 91% 55%;
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 120 5% 10%;
+    --sidebar-primary: 120 5% 10%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-accent: 0 0% 92%;
+    --sidebar-accent-foreground: 120 5% 10%;
     --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 217 91% 55%;
-
+    --sidebar-ring: 120 5% 10%;
     /* Glass effects */
     --glass-bg: 120 5% 100%;
     --glass-border: 120 3% 85%;
@@ -102,14 +101,14 @@
     --gantt-grid: 120 3% 18%;
     --gantt-today: 0 84% 50%;
 
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 217 91% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 217 91% 55%;
+    --sidebar-background: 120 5% 12%;
+    --sidebar-foreground: 120 5% 90%;
+    --sidebar-primary: 120 5% 95%;
+    --sidebar-primary-foreground: 120 5% 10%;
+    --sidebar-accent: 120 5% 18%;
+    --sidebar-accent-foreground: 120 5% 90%;
+    --sidebar-border: 120 5% 20%;
+    --sidebar-ring: 120 5% 95%;
 
     /* Glass effects - dark mode */
     --glass-bg: 120 5% 15%;
