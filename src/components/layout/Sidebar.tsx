@@ -263,7 +263,7 @@ export function Sidebar() {
         <div className={cn('flex flex-col h-full transition-all duration-300', phase >= 3 ? 'w-[60px]' : 'w-full')}>
           
           {/* Área superior */}
-          <div className="flex-1 flex flex-col bg-[#f7f7f7]">
+          <div className="flex-1 flex flex-col bg-sidebar">
             {/* Hambúrguer no topo, alinhado com primeiro item do menu */}
             <div className="shrink-0 py-2 px-2">
               <button onClick={toggleSidebar} className={cn('w-full flex items-center justify-center h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors', phase >= 3 ? 'bg-accent text-foreground' : '')} title="Menu Global">
@@ -285,14 +285,14 @@ export function Sidebar() {
           </div>
 
           {/* FOOTER: Ações do Sistema - Faixa cinza */}
-          <div className="shrink-0 flex flex-col py-4 gap-3 items-center w-full bg-[#f7f7f7]">
-            <button onClick={toggleTheme} className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors text-[#1a1a19]" title="Tema">
+          <div className="shrink-0 flex flex-col py-4 gap-3 items-center w-full bg-sidebar">
+            <button onClick={toggleTheme} className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-sidebar-accent transition-colors text-sidebar-foreground" title="Tema">
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors text-[#1a1a19]" title="Ajuda">
+            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-sidebar-accent transition-colors text-sidebar-foreground" title="Ajuda">
               <HelpCircle size={20} />
             </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors relative text-[#1a1a19]" title="Notificações">
+            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-sidebar-accent transition-colors relative text-sidebar-foreground" title="Notificações">
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[hsl(var(--status-info))] rounded-full" />
             </button>
@@ -300,7 +300,7 @@ export function Sidebar() {
             {/* Perfil */}
             <Avatar className="h-8 w-8">
               <AvatarImage src="" />
-              <AvatarFallback className="bg-amber-100 text-amber-800 text-xs font-bold">
+              <AvatarFallback className="bg-amber-100 text-amber-800 text-xs font-bold dark:bg-amber-900 dark:text-amber-100">
                 {userInitials}
               </AvatarFallback>
             </Avatar>
@@ -320,37 +320,37 @@ export function Sidebar() {
           x: -20
         }} className="flex-1 flex overflow-hidden bg-card">
               {/* COLUNA: MÓDULOS (Fase 3) */}
-              <div className={cn("flex flex-col py-4 bg-[#f7f7f7]", phase === 4 ? 'w-[220px]' : 'w-full')}>
+              <div className={cn("flex flex-col py-4 bg-sidebar", phase === 4 ? 'w-[220px]' : 'w-full')}>
                 {/* Logo acima dos menus */}
-                <div className="px-4 pb-6 pt-2 bg-[#f7f7f7]">
-                  <img alt="J.Mario" className="h-12 object-contain border-0" src="/lovable-uploads/edda602f-2289-40ba-b6c6-b81038b7ba04.png" />
+                <div className="px-4 pb-6 pt-2 bg-sidebar">
+                  <img alt="J.Mario" className="h-12 object-contain border-0 dark:invert" src="/lovable-uploads/edda602f-2289-40ba-b6c6-b81038b7ba04.png" />
                 </div>
                 
-                <div className="flex-1 overflow-y-auto space-y-0.5 px-[15px] py-[25px] bg-[#f7f7f7]">
-                  {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn("w-full text-left py-2.5 rounded-lg flex items-center justify-between transition-all text-lg px-0 font-semibold text-[#1a1a19]", activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-accent hover:text-foreground')}>
+                <div className="flex-1 overflow-y-auto space-y-0.5 px-[15px] py-[25px] bg-sidebar">
+                  {modules.map(mod => <button key={mod.id} onClick={() => handleModuleClick(mod.id)} className={cn("w-full text-left py-2.5 rounded-lg flex items-center justify-between transition-all text-lg px-0 font-semibold text-sidebar-foreground", activeGroup === mod.id ? 'text-foreground font-semibold' : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground')}>
                       {mod.label}
                       {activeGroup === mod.id && phase === 4 && <ChevronRight size={14} className="text-muted-foreground" />}
                     </button>)}
                 </div>
                 
                 {/* FOOTER FASE 3 */}
-                <div className="px-3 pt-3 mt-auto space-y-1 py-[13px] my-0 bg-[#f7f7f7]">
+                <div className="px-3 pt-3 mt-auto space-y-1 py-[13px] my-0 bg-sidebar">
                   <div className="flex items-center justify-between px-3 py-2">
-                    <span className="text-xs text-[#1a1a19]">
+                    <span className="text-xs text-sidebar-foreground">
                       expandir menu
                     </span>
-                    <button onClick={handleToggleLock} className={cn('w-9 h-5 rounded-full relative transition-colors', locked ? 'bg-foreground' : 'bg-muted')} title={locked ? "Destravar menu" : "Fixar menu aberto"}>
-                      <div className={cn('absolute top-0.5 w-4 h-4 bg-card rounded-full transition-all shadow-sm', locked ? 'right-0.5' : 'left-0.5')} />
+                    <button onClick={handleToggleLock} className={cn('w-9 h-5 rounded-full relative transition-colors', locked ? 'bg-sidebar-foreground' : 'bg-muted')} title={locked ? "Destravar menu" : "Fixar menu aberto"}>
+                      <div className={cn('absolute top-0.5 w-4 h-4 bg-sidebar rounded-full transition-all shadow-sm', locked ? 'right-0.5' : 'left-0.5')} />
                     </button>
                   </div>
 
-                  <button onClick={() => handleItemClick('/configuracoes')} className="flex items-center gap-3 text-sm hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-[#1a1a19]">
+                  <button onClick={() => handleItemClick('/configuracoes')} className="flex items-center gap-3 text-sm hover:bg-sidebar-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-sidebar-foreground">
                     <Settings size={16} /> configurações
                   </button>
-                  <button className="flex items-center gap-3 text-sm hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-[#1a1a19]">
+                  <button className="flex items-center gap-3 text-sm hover:bg-sidebar-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-sidebar-foreground">
                     <Lightbulb size={16} /> canal de ideias
                   </button>
-                  <button className="flex items-center gap-3 text-sm hover:bg-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-[#1a1a19]">
+                  <button className="flex items-center gap-3 text-sm hover:bg-sidebar-accent px-3 rounded-lg transition-colors w-full text-left py-[5px] text-sidebar-foreground">
                     <Headphones size={16} /> suporte
                   </button>
                 </div>
@@ -363,7 +363,7 @@ export function Sidebar() {
           }} animate={{
             opacity: 1,
             width: '260px'
-          }} className="flex-1 flex flex-col bg-zinc-50 px-[15px] py-[62px]">
+          }} className="flex-1 flex flex-col bg-sidebar/50 dark:bg-sidebar/80 px-[15px] py-[62px]">
                   <div className="px-5 h-[32px] flex items-center mb-4">
                     <h3 className="font-semibold text-foreground text-lg">{currentModule.label}</h3>
                   </div>
