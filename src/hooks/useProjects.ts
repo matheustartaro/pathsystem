@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Project, ProjectStatus, Task, DEFAULT_TASKS, TASK_ORDER } from '@/types/project';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { mockProjects } from '@/data/mockProjects';
+
 
 const STORAGE_KEY = 'projetos-jm-data';
 
@@ -92,10 +92,10 @@ async function fetchProjects(): Promise<Project[]> {
           return value;
         });
       } catch {
-        return mockProjects;
+        return [];
       }
     }
-    return mockProjects;
+    return [];
   }
 }
 
