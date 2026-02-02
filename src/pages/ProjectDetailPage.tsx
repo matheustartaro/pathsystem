@@ -6,7 +6,7 @@ import { ArrowLeft, Calendar, User, CheckCircle2, Circle, Clock, Edit, Plus, Pap
 import { cn } from '@/lib/utils';
 import { AppLayout } from '@/components/layout';
 import { useProjects } from '@/hooks/useProjects';
-import { getStatusLabel, getStatusColor } from '@/data/mockProjects';
+import { getStatusLabel, getStatusColor } from '@/lib/status-utils';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

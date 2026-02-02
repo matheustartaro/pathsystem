@@ -4,7 +4,7 @@ import { Calendar, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Project } from '@/types/project';
-import { getStatusLabel, getStatusColor } from '@/data/mockProjects';
+import { getStatusLabel, getStatusColor } from '@/lib/status-utils';
 
 interface GanttMobileListProps {
   projects: Project[];
