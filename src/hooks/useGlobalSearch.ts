@@ -81,7 +81,7 @@ export function useGlobalSearch() {
           type: 'transacao',
           title: transaction.descricao,
           subtitle: `${transaction.tipo === 'receita' ? 'Receita' : 'Despesa'} • R$ ${transaction.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-          url: transaction.tipo === 'receita' ? '/financeiro/receitas' : '/financeiro/despesas',
+          url: '/financeiro/fluxo-caixa',
           meta: { tipo: transaction.tipo, valor: transaction.valor, status: transaction.status },
         });
       }
