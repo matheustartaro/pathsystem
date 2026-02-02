@@ -4,7 +4,6 @@ import {
   FolderKanban, 
   TrendingUp, 
   TrendingDown, 
-  Package, 
   Plus,
   DollarSign,
   UserPlus,
@@ -16,8 +15,6 @@ import { AppLayout } from '@/components/layout';
 import { StatCard } from '@/components/dashboard';
 import { useProjects } from '@/hooks/useProjects';
 import { useFinanceiro } from '@/hooks/useFinanceiro';
-import { useProducts } from '@/hooks/useProducts';
-import { useResponsaveis } from '@/hooks/useResponsaveis';
 import { useStatusCategories } from '@/hooks/useStatusCategories';
 import { ProjectFormDialog } from '@/components/projects';
 import { TransactionFormDialog } from '@/components/financeiro/TransactionFormDialog';
@@ -30,7 +27,7 @@ import { ptBR } from 'date-fns/locale';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { formatCurrency, formatNumber } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 
 type PeriodFilter = 'month' | 'quarter' | 'year' | 'custom';
 
@@ -38,8 +35,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { projects, getStats, isLoading, addProject } = useProjects();
   const { transactions } = useFinanceiro();
-  const { products } = useProducts();
-  const { responsaveis } = useResponsaveis();
   const { categories } = useStatusCategories();
   const stats = getStats();
 
